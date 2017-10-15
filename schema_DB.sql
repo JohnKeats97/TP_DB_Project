@@ -1,6 +1,7 @@
 
 CREATE EXTENSION IF NOT EXISTS citext;
-_________________________________
+
+--
 
 DROP TABLE IF EXISTS users CASCADE;
 
@@ -11,7 +12,8 @@ CREATE TABLE IF NOT EXISTS users (
   fullname TEXT DEFAULT NULL,
   nickname citext COLLATE ucs_basic UNIQUE
 );
-_________________________________
+
+--
 
 DROP TABLE IF EXISTS forums CASCADE;
 
@@ -22,7 +24,8 @@ CREATE TABLE IF NOT EXISTS forums (
   slug    citext UNIQUE                                         NOT NULL,
   title   TEXT                                                  NOT NULL
 );
-_________________________________
+
+--
 
 DROP TABLE IF EXISTS threads CASCADE;
 
@@ -36,7 +39,8 @@ CREATE TABLE IF NOT EXISTS threads (
   title   TEXT                                                  NOT NULL,
   votes   INTEGER     DEFAULT 0
 );
-_________________________________
+
+--
 
 DROP TABLE IF EXISTS votes CASCADE;
 
@@ -46,7 +50,8 @@ CREATE TABLE IF NOT EXISTS votes (
   voice    INTEGER DEFAULT 0,
   CONSTRAINT unique_pair UNIQUE (nickname, thread)
 );
-_________________________________
+
+--
 
 DROP TABLE IF EXISTS forum_users CASCADE;
 
@@ -54,7 +59,8 @@ CREATE TABLE IF NOT EXISTS forum_users (
   user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
   forum   citext REFERENCES forums (slug) ON DELETE CASCADE
 );
-_________________________________
+
+--
 
 DROP TABLE IF EXISTS posts CASCADE;
 
@@ -70,5 +76,6 @@ CREATE TABLE IF NOT EXISTS posts (
   path     INTEGER [],
   root_id  INTEGER
 );
-_________________________________
+
+--
 
