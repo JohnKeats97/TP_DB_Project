@@ -48,11 +48,11 @@ USER root
 
 # Копируем исходный код в Docker-контейнер
 ENV WORK /opt/forum_db
-ADD database/ $WORK/database/
+ADD DataBase/ $WORK/DataBase/
 ADD appconfig.py $WORK/appconfig.py
 ADD routes.py $WORK/routes.py
 ADD main.py $WORK/main.py
-ADD schema.sql $WORK/schema.sql
+ADD schema_DB.sql $WORK/schema_DB.sql
 
 # Объявлем порт сервера
 EXPOSE 5000
@@ -63,5 +63,5 @@ EXPOSE 5000
 ENV PGPASSWORD docker
 CMD service postgresql start &&\
     cd $WORK/ &&\
-    psql -h localhost -U docker -d docker -f schema.sql &&\
+    psql -h localhost -U docker -d docker -f schema_DB.sql &&\
     gunicorn -w 4 -b :5000 main:app
