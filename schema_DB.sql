@@ -79,3 +79,54 @@ CREATE TABLE IF NOT EXISTS posts (
 
 --
 
+CREATE OR REPLACE FUNCTION after_thread_insert()
+  RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE forums
+  SET threads = threads + 1
+  WHERE slug = NEW.forum;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_threads_count_trigger
+AFTER INSERT ON threads
+FOR EACH ROW EXECUTE PROCEDURE after_thread_insert();
+
+CREATE OR REPLACE FUNCTION on_insert_post_or_thread()
+  RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO forum_users (user_id, forum) VALUES ((SELECT id
+                                                     FROM users
+                                                     WHERE nickname = NEW.author), NEW.forum);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER post_insert_trigger
+AFTER INSERT ON posts
+FOR EACH ROW EXECUTE PROCEDURE on_insert_post_or_thread();
+
+CREATE TRIGGER thread_insert_trigger
+AFTER INSERT ON threads
+FOR EACH ROW EXECUTE PROCEDURE on_insert_post_or_thread();
+
+--
+
+DROP FUNCTION IF EXISTS update_or_insert_votes( citext, INTEGER, INTEGER );
+
+CREATE OR REPLACE FUNCTION update_or_insert_votes(vote_user_nickname citext, vote_thread INTEGER,
+                                                  vote_value         INTEGER)
+  RETURNS VOID AS $$
+BEGIN
+  INSERT INTO votes (nickname, thread, voice) VALUES (vote_user_nickname, vote_thread, vote_value)
+  ON CONFLICT (nickname, thread)
+    DO UPDATE SET voice = vote_value;
+  UPDATE threads
+  SET votes = (SELECT SUM(voice)
+               FROM votes
+               WHERE thread = vote_thread)
+  WHERE id = vote_thread;
+END;
+$$ LANGUAGE plpgsql;
+
