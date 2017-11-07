@@ -185,6 +185,10 @@ def view_thread(slug_or_id):
 def get_posts_sorted(slug_or_id):
     query_params = request.args.to_dict()
     limit, since, sort, desc = 100, 0, 'flat', False
+    thread, code = thread_db.get(slug_or_id=slug_or_id)
+    if code == status_codes['NOT_FOUND'] or not thread:
+        error = {"message": "Can't find user with id " + slug_or_id}
+        return jsonify(error), code
     for key in query_params.keys():
         if key == 'limit':
             limit = query_params['limit']
@@ -197,8 +201,7 @@ def get_posts_sorted(slug_or_id):
                 desc = True
     posts, code = posts_db.sort(limit=limit, since=since, sort=sort, desc=desc, slug_or_id=slug_or_id)
     if not posts and since == 0:
-        error = {"message": "Can't find user with id " + slug_or_id}
-        return jsonify(error), status_codes['NOT_FOUND']
+        return jsonify(None), status_codes['OK']
     if not posts:
         return jsonify(posts), code
     return jsonify(posts), code
