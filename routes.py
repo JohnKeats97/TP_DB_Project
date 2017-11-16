@@ -184,7 +184,7 @@ def view_thread(slug_or_id):
 @app.route('/api/thread/<slug_or_id>/posts', methods=['GET'])
 def get_posts_sorted(slug_or_id):
     query_params = request.args.to_dict()
-    limit, since, sort, desc = 100, 0, 'flat', False
+    limit, since, sort, desc = None, None, 'flat', False
     thread, code = thread_db.get(slug_or_id=slug_or_id)
     if code == status_codes['NOT_FOUND'] or not thread:
         error = {"message": "Can't find user with id " + slug_or_id}
@@ -200,8 +200,6 @@ def get_posts_sorted(slug_or_id):
             if query_params[key] == 'true':
                 desc = True
     posts, code = posts_db.sort(limit=limit, since=since, sort=sort, desc=desc, slug_or_id=slug_or_id)
-    if not posts and since == 0:
-        return jsonify(None), status_codes['OK']
     if not posts:
         return jsonify(posts), code
     return jsonify(posts), code

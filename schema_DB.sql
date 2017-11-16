@@ -1,4 +1,6 @@
 
+
+
 CREATE EXTENSION IF NOT EXISTS citext;
 
 --
@@ -129,4 +131,58 @@ BEGIN
   WHERE id = vote_thread;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+
+--
+
+DROP INDEX IF EXISTS user_nickname_forums_idx;
+
+CREATE INDEX IF NOT EXISTS user_nickname_forums_idx
+  ON forums ("user");
+
+--
+
+DROP INDEX IF EXISTS author_threads_idx;
+DROP INDEX IF EXISTS forum_slug_threads_idx;
+
+CREATE INDEX IF NOT EXISTS author_threads_idx
+  ON threads (author);
+CREATE INDEX IF NOT EXISTS forum_threads_idx
+  ON threads (forum);
+
+--
+
+DROP INDEX IF EXISTS author_posts_idx;
+DROP INDEX IF EXISTS forum_posts_idx;
+DROP INDEX IF EXISTS flat_sort_posts_idx;
+DROP INDEX IF EXISTS tree_sort_posts_idx;
+DROP INDEX IF EXISTS parent_tree_sort_posts_idx;
+DROP INDEX IF EXISTS parent_tree_sort_posts_sub_idx;
+
+CREATE INDEX IF NOT EXISTS author_posts_idx
+  ON posts (author);
+CREATE INDEX IF NOT EXISTS forum_posts_idx
+  ON posts (forum);
+CREATE INDEX IF NOT EXISTS flat_sort_posts_idx
+  ON posts (thread, created, id);
+CREATE INDEX IF NOT EXISTS tree_sort_posts_idx
+  ON posts (thread, path);
+CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_idx
+  ON posts (root_id, path);
+CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_sub_idx
+  ON posts (thread, parent, id);
+
+--
+
+DROP INDEX IF EXISTS user_id_forum_users_idx;
+DROP INDEX IF EXISTS forum_forum_users_idx;
+
+CREATE INDEX IF NOT EXISTS user_id_forum_users_idx
+  ON forum_users (user_id);
+CREATE INDEX IF NOT EXISTS forum_forum_users_idx
+  ON forum_users (forum);
+
+
 

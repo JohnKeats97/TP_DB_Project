@@ -17,60 +17,46 @@ UPDATE_POST_SQL = """UPDATE posts SET message = %(message)s, isEdited = TRUE WHE
 
 
 
-def posts_flat_sort_sql(slug_or_id, desc):
+def posts_flat_sort_sql(slug_or_id, limit, since, desc):
+
     sql = "SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE thread = "
     if slug_or_id.isdigit():
         sql += "%(slug_or_id)s"
     else:
         sql += "(SELECT id FROM threads WHERE slug = %(slug_or_id)s)"
-    sql += " ORDER BY created"
-    if desc:
-        sql += " DESC"
-    sql += ", id"
-    if desc:
-        sql += " DESC"
-    sql += " LIMIT %(limit)s"
+    order = (" DESC " if (desc is True) else " ASC ")
+    sign = (" < " if (desc is True) else " > ")
+    if (since != None):
+        sql += " AND id" + sign + "%(since)s "
+    sql += "ORDER BY id " + order
+    if (limit != None):
+        sql += "LIMIT %(limit)s"
+
     return sql
 
-def posts_flat_sort_since_sql(slug_or_id, desc):
+
+
+def posts_tree_sort_sql(slug_or_id, limit, since, desc):
     sql = "SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE thread = "
     if slug_or_id.isdigit():
         sql += "%(slug_or_id)s"
     else:
         sql += "(SELECT id FROM threads WHERE slug = %(slug_or_id)s)"
-    sql += " ORDER BY created"
-    if desc:
-        sql += " DESC"
-    sql += ", id"
-    if desc:
-        sql += " DESC"
-    return sql
+    order = (" DESC " if (desc is True) else " ASC ")
+    sign = (" < " if (desc is True) else " > ")
+    if (since != None):
+        sql += " AND path" + sign + "(SELECT path FROM posts WHERE id = %(since)s) "
+    sql += "ORDER BY path " + order
+    if (limit != None):
+        sql += "LIMIT %(limit)s"
 
-def posts_tree_sort_sql(slug_or_id, desc):
-    sql = "SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE thread = "
-    if slug_or_id.isdigit():
-        sql += "%(slug_or_id)s"
-    else:
-        sql += "(SELECT id FROM threads WHERE slug = %(slug_or_id)s)"
-    sql += " ORDER BY path"
-    if desc:
-        sql += " DESC"
-    sql += " LIMIT %(limit)s"
-    return sql
-
-def posts_tree_sort_since_sql(slug_or_id, desc):
-    sql = "SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE thread = "
-    if slug_or_id.isdigit():
-        sql += "%(slug_or_id)s"
-    else:
-        sql += "(SELECT id FROM threads WHERE slug = %(slug_or_id)s)"
-    sql += " ORDER BY path"
-    if desc:
-        sql += " DESC"
     return sql
 
 
-def posts_parent_tree_sort_sql(slug_or_id, desc):
+
+def posts_parent_tree_sort_sql(slug_or_id, limit, since, desc):
+    order = (" DESC " if (desc is True) else " ASC ")
+    sign = (" < " if (desc is True) else " > ")
     sql = """SELECT author, created, forum, id, isEdited, message, parent, thread 
 				FROM posts 
 				WHERE root_id IN (
@@ -81,56 +67,19 @@ def posts_parent_tree_sort_sql(slug_or_id, desc):
         sql += "%(slug_or_id)s"
     else:
         sql += "(SELECT id FROM threads WHERE slug = %(slug_or_id)s)"
-    sql += " AND parent = 0 ORDER BY id"
-    if desc:
-        sql += " DESC"
-    sql += " LIMIT %(limit)s OFFSET %(since)s)"
-    sql += " ORDER BY path"
-    if desc:
-        sql += " DESC"
+    sql += " AND parent = 0 "
+
+    if (since != None):
+        sql += " AND path " + sign + "(SELECT path FROM posts WHERE id = %(since)s) "
+    sql += " ORDER BY id " + order
+
+    if (limit != None):
+        sql += "LIMIT %(limit)s"
+    sql += ") "
+    sql += " ORDER BY path " + order
+
     return sql
 
-def posts_parent_tree_sort_since_sql(slug_or_id, desc):
-    sql = """SELECT author, created, forum, id, isEdited, message, parent, thread 
-				FROM posts 
-				WHERE root_id IN (
-					SELECT id
-					FROM posts
-					WHERE thread = """
-    if slug_or_id.isdigit():
-        sql += "%(slug_or_id)s"
-    else:
-        sql += "(SELECT id FROM threads WHERE slug = %(slug_or_id)s)"
-    sql += " AND parent = 0 ORDER BY id"
-    if desc:
-        sql += " DESC"
-
-    sql += ") ORDER BY path"
-    if desc:
-        sql += " DESC"
-    return sql
-
-
-def posts_since_limit_parent (content, since, limit):
-    for i in range(len(content) - 1):
-        if content[i]["id"] == since:
-            start = i + 1
-            stop = start
-            flag = 1
-            for j in range (start, len(content)-1):
-                if content[j]["parent"] == "0":
-                    flag += 1
-                if flag > limit:
-                    break
-                stop += 1
-            return content[start:stop+2]
-    return []
-
-def posts_since_limit (content, since, limit):
-    for i in range(len(content) - 1):
-        if content[i]["id"] == since:
-            return content[i+1:i+limit+1]
-    return []
 
 
 class PostsDb:
@@ -238,30 +187,12 @@ class PostsDb:
             with get_db_cursor() as cursor:
                 params = {'slug_or_id': slug_or_id, 'limit': limit, 'since': since}
                 if sort == 'flat':
-                    if since == 0:
-                        cursor.execute(posts_flat_sort_sql(slug_or_id=slug_or_id, desc=desc), params)
-                        content = cursor.fetchall()
-                    else:
-                        cursor.execute(posts_flat_sort_since_sql(slug_or_id=slug_or_id, desc=desc), params)
-                        content = cursor.fetchall()
-                        content = posts_since_limit (content, int(since), int(limit))
+                    cursor.execute(posts_flat_sort_sql(slug_or_id=slug_or_id, limit=limit, since=since, desc=desc), params)
                 elif sort == 'tree':
-                    if since == 0:
-                        cursor.execute(posts_tree_sort_sql(slug_or_id=slug_or_id, desc=desc), params)
-                        content = cursor.fetchall()
-                    else:
-                        cursor.execute(posts_tree_sort_since_sql(slug_or_id=slug_or_id, desc=desc), params)
-                        content = cursor.fetchall()
-                        content = posts_since_limit (content, int(since), int(limit))
+                    cursor.execute(posts_tree_sort_sql(slug_or_id=slug_or_id, limit=limit, since=since, desc=desc), params)
                 elif sort == 'parent_tree':
-                    if since == 0:
-                        cursor.execute(posts_parent_tree_sort_sql(slug_or_id=slug_or_id, desc=desc), params)
-                        content = cursor.fetchall()
-                    else:
-                        cursor.execute(posts_parent_tree_sort_since_sql(slug_or_id=slug_or_id, desc=desc), params)
-                        content = cursor.fetchall()
-                        content = posts_since_limit_parent(content, int(since), int(limit))
-
+                    cursor.execute(posts_parent_tree_sort_sql(slug_or_id=slug_or_id, limit=limit, since=since, desc=desc), params)
+                content = cursor.fetchall()
             for param in content:
                 param['created'] = format_time(param['created'])
         except psycopg2.DatabaseError as e:
