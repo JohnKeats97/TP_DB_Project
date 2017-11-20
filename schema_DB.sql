@@ -1,6 +1,4 @@
 
-
-
 CREATE EXTENSION IF NOT EXISTS citext;
 
 --
@@ -81,6 +79,25 @@ CREATE TABLE IF NOT EXISTS posts (
 
 --
 
+DROP FUNCTION IF EXISTS update_or_insert_votes( citext, INTEGER, INTEGER );
+
+CREATE OR REPLACE FUNCTION update_or_insert_votes(vote_user_nickname citext, vote_thread INTEGER,
+                                                  vote_value         INTEGER)
+  RETURNS VOID AS $$
+BEGIN
+  INSERT INTO votes (nickname, thread, voice) VALUES (vote_user_nickname, vote_thread, vote_value)
+  ON CONFLICT (nickname, thread)
+    DO UPDATE SET voice = vote_value;
+  UPDATE threads
+  SET votes = (SELECT SUM(voice)
+               FROM votes
+               WHERE thread = vote_thread)
+  WHERE id = vote_thread;
+END;
+$$ LANGUAGE plpgsql;
+
+--
+
 CREATE OR REPLACE FUNCTION after_thread_insert()
   RETURNS TRIGGER AS $$
 BEGIN
@@ -105,35 +122,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER post_insert_trigger
-AFTER INSERT ON posts
-FOR EACH ROW EXECUTE PROCEDURE on_insert_post_or_thread();
-
 CREATE TRIGGER thread_insert_trigger
 AFTER INSERT ON threads
 FOR EACH ROW EXECUTE PROCEDURE on_insert_post_or_thread();
 
+CREATE TRIGGER post_insert_trigger
+AFTER INSERT ON posts
+FOR EACH ROW EXECUTE PROCEDURE on_insert_post_or_thread();
+
 --
 
-DROP FUNCTION IF EXISTS update_or_insert_votes( citext, INTEGER, INTEGER );
+DROP INDEX IF EXISTS forum_forum_users_idx;
 
-CREATE OR REPLACE FUNCTION update_or_insert_votes(vote_user_nickname citext, vote_thread INTEGER,
-                                                  vote_value         INTEGER)
-  RETURNS VOID AS $$
-BEGIN
-  INSERT INTO votes (nickname, thread, voice) VALUES (vote_user_nickname, vote_thread, vote_value)
-  ON CONFLICT (nickname, thread)
-    DO UPDATE SET voice = vote_value;
-  UPDATE threads
-  SET votes = (SELECT SUM(voice)
-               FROM votes
-               WHERE thread = vote_thread)
-  WHERE id = vote_thread;
-END;
-$$ LANGUAGE plpgsql;
+CREATE INDEX IF NOT EXISTS forum_forum_users_idx
+  ON forum_users (forum);
 
+DROP INDEX IF EXISTS user_id_forum_users_idx;
 
-
+CREATE INDEX IF NOT EXISTS user_id_forum_users_idx
+  ON forum_users (user_id);
 
 --
 
@@ -144,45 +151,48 @@ CREATE INDEX IF NOT EXISTS user_nickname_forums_idx
 
 --
 
-DROP INDEX IF EXISTS author_threads_idx;
-DROP INDEX IF EXISTS forum_slug_threads_idx;
-
-CREATE INDEX IF NOT EXISTS author_threads_idx
-  ON threads (author);
-CREATE INDEX IF NOT EXISTS forum_threads_idx
-  ON threads (forum);
-
---
-
 DROP INDEX IF EXISTS author_posts_idx;
-DROP INDEX IF EXISTS forum_posts_idx;
-DROP INDEX IF EXISTS flat_sort_posts_idx;
-DROP INDEX IF EXISTS tree_sort_posts_idx;
-DROP INDEX IF EXISTS parent_tree_sort_posts_idx;
-DROP INDEX IF EXISTS parent_tree_sort_posts_sub_idx;
 
 CREATE INDEX IF NOT EXISTS author_posts_idx
   ON posts (author);
+
+DROP INDEX IF EXISTS forum_posts_idx;
+
 CREATE INDEX IF NOT EXISTS forum_posts_idx
   ON posts (forum);
-CREATE INDEX IF NOT EXISTS flat_sort_posts_idx
-  ON posts (thread, created, id);
-CREATE INDEX IF NOT EXISTS tree_sort_posts_idx
-  ON posts (thread, path);
-CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_idx
-  ON posts (root_id, path);
-CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_sub_idx
-  ON posts (thread, parent, id);
 
 --
 
-DROP INDEX IF EXISTS user_id_forum_users_idx;
-DROP INDEX IF EXISTS forum_forum_users_idx;
+DROP INDEX IF EXISTS forum_slug_threads_idx;
 
-CREATE INDEX IF NOT EXISTS user_id_forum_users_idx
-  ON forum_users (user_id);
-CREATE INDEX IF NOT EXISTS forum_forum_users_idx
-  ON forum_users (forum);
+CREATE INDEX IF NOT EXISTS forum_threads_idx
+  ON threads (forum);
 
+DROP INDEX IF EXISTS author_threads_idx;
 
+CREATE INDEX IF NOT EXISTS author_threads_idx
+  ON threads (author);
 
+--
+
+DROP INDEX IF EXISTS flat_sort_posts_idx;
+
+CREATE INDEX IF NOT EXISTS flat_sort_posts_idx
+  ON posts (thread, created, id);
+
+DROP INDEX IF EXISTS tree_sort_posts_idx;
+
+CREATE INDEX IF NOT EXISTS tree_sort_posts_idx
+  ON posts (thread, path);
+
+--
+
+DROP INDEX IF EXISTS parent_tree_sort_posts_idx;
+
+CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_idx
+  ON posts (root_id, path);
+
+DROP INDEX IF EXISTS parent_tree_sort_posts_sub_idx;
+
+CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_sub_idx
+  ON posts (thread, parent, id);

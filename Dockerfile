@@ -19,7 +19,7 @@ RUN pip3 install pytz
 RUN pip3 install psycopg2
 RUN pip3 install gunicorn
 RUN pip3 install flask
-RUN pip3 install jsonify
+RUN pip3 install ujson
 
 USER postgres
 
@@ -64,4 +64,4 @@ ENV PGPASSWORD docker
 CMD service postgresql start &&\
     cd $WORK/ &&\
     psql -h localhost -U docker -d docker -f schema_DB.sql &&\
-    gunicorn -w 4 -b :5000 main:app
+    gunicorn -w 6 -t 240 -b :5000 main:app
