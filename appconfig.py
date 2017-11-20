@@ -1,25 +1,15 @@
-import os
-from contextlib import contextmanager
-from urllib.parse import urlparse
-
-
 from flask import Flask
 from psycopg2.pool import ThreadedConnectionPool
 import psycopg2
 import psycopg2.extras
 import pytz
 
+import os
+from contextlib import contextmanager
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 connection_string = 'dbname=%s user=%s host=%s password=%s' % ('docker', 'docker', 'localhost', 'docker')
-
-status_codes = {
-    'OK': 200,
-    'CREATED': 201,
-    'NOT_FOUND': 404,
-    'CONFLICT': 409
-}
-
 
 
 url = urlparse(os.environ.get('DATABASE_URL'))
@@ -63,5 +53,11 @@ def format_time(created):
     utc_str = utc_str[:-3] + 'Z'
     return utc_str
 
+status_codes = {
+    'OK': 200,
+    'CREATED': 201,
+    'NOT_FOUND': 404,
+    'CONFLICT': 409
+}
 
 init_db()

@@ -3,20 +3,6 @@ import psycopg2
 import psycopg2.extras
 
 
-INSERT_POSTS_SQL = \
-    """INSERT INTO posts (author, created, forum, id, message, parent, thread, path, root_id) VALUES %s"""
-
-GET_PATH_SQL = """SELECT path FROM posts WHERE id = %(parent)s"""
-
-GET_POST_SQL = """SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE id = %(id)s"""
-
-UPDATE_POSTS_ON_FORUM_SQL = """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(forum)s"""
-
-UPDATE_POST_SQL = """UPDATE posts SET message = %(message)s, isEdited = TRUE WHERE id = %(id)s RETURNING 
-						author, created, forum, id, isEdited, message, parent, thread"""
-
-
-
 def posts_flat_sort_sql(slug_or_id, limit, since, desc):
 
     sql = "SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE thread = "
@@ -80,9 +66,28 @@ def posts_parent_tree_sort_sql(slug_or_id, limit, since, desc):
 
     return sql
 
+INSERT_POSTS_SQL = \
+    """INSERT INTO posts (author, created, forum, id, message, parent, thread, path, root_id) VALUES %s"""
+
+GET_POST_SQL = """SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE id = %(id)s"""
+
+GET_PATH_SQL = """SELECT path FROM posts WHERE id = %(parent)s"""
+
+UPDATE_POST_SQL = """UPDATE posts SET message = %(message)s, isEdited = TRUE WHERE id = %(id)s RETURNING 
+						author, created, forum, id, isEdited, message, parent, thread"""
+
+UPDATE_POSTS_ON_FORUM_SQL = """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(forum)s"""
 
 
 class PostsDb:
+
+    @staticmethod
+    def set_id(identifier):
+        try:
+            with get_db_cursor() as cursor:
+                cursor.execute("SELECT setval('posts_id_seq', %(id)s, false)", {'id': identifier})
+        except psycopg2.DatabaseError as e:
+            print('Error')
 
     @staticmethod
     def get_id():
@@ -92,16 +97,8 @@ class PostsDb:
                 cursor.execute("SELECT nextval('posts_id_seq')")
                 content = cursor.fetchone()
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content['nextval']
-
-    @staticmethod
-    def set_id(identifier):
-        try:
-            with get_db_cursor() as cursor:
-                cursor.execute("SELECT setval('posts_id_seq', %(id)s, false)", {'id': identifier})
-        except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
 
     @staticmethod
     def count():
@@ -111,7 +108,7 @@ class PostsDb:
                 cursor.execute("SELECT COUNT(*) FROM posts")
                 content = cursor.fetchone()
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content['count']
 
     @staticmethod
@@ -122,8 +119,26 @@ class PostsDb:
                 cursor.execute(GET_PATH_SQL, {'parent': parent})
                 content = cursor.fetchone()
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content['path']
+
+    @staticmethod
+    def get(identifier):
+        content = None
+        code = status_codes['OK']
+        try:
+            with get_db_cursor() as cursor:
+                cursor.execute(GET_POST_SQL, {'id': identifier})
+                content = cursor.fetchone()
+                if content is None:
+                    code = status_codes['NOT_FOUND']
+                else:
+                    content['created'] = format_time(content['created'])
+                    content['isEdited'] = content['isedited']
+                    del content['isedited']
+        except psycopg2.DatabaseError as e:
+            print('Error')
+        return content, code
 
     @staticmethod
     def create(data, forum):
@@ -133,10 +148,8 @@ class PostsDb:
                 psycopg2.extras.execute_values(cursor, INSERT_POSTS_SQL, data)
                 cursor.execute(UPDATE_POSTS_ON_FORUM_SQL, {'amount': len(data), 'forum': forum})
         except psycopg2.IntegrityError as e:
-            print('Error %s' % e)
             code = status_codes['NOT_FOUND']
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
             code = status_codes['NOT_FOUND']
         return code
 
@@ -154,29 +167,9 @@ class PostsDb:
                     content['isEdited'] = content['isedited']
                     del content['isedited']
         except psycopg2.IntegrityError as e:
-            print('Error %s' % e)
             code = status_codes['CONFLICT']
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
             code = status_codes['NOT_FOUND']
-        return content, code
-
-    @staticmethod
-    def get(identifier):
-        content = None
-        code = status_codes['OK']
-        try:
-            with get_db_cursor() as cursor:
-                cursor.execute(GET_POST_SQL, {'id': identifier})
-                content = cursor.fetchone()
-                if content is None:
-                    code = status_codes['NOT_FOUND']
-                else:
-                    content['created'] = format_time(content['created'])
-                    content['isEdited'] = content['isedited']
-                    del content['isedited']
-        except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
         return content, code
 
     @staticmethod
@@ -196,7 +189,7 @@ class PostsDb:
             for param in content:
                 param['created'] = format_time(param['created'])
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content, code
 
     @staticmethod
@@ -205,4 +198,4 @@ class PostsDb:
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute("DELETE FROM posts")
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')

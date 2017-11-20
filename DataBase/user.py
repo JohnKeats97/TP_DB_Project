@@ -3,13 +3,6 @@ import psycopg2
 import psycopg2.extras
 
 
-CREATE_USER_SQL = """INSERT INTO users (about, email, fullname, nickname) 
-					VALUES(%(about)s, %(email)s, %(fullname)s, %(nickname)s)"""
-
-GET_USER_SQL = """SELECT about, email, fullname, nickname 
-					FROM users WHERE nickname = %(nickname)s OR email = %(email)s"""
-
-
 
 def update_user_sql(content):
     sql = 'UPDATE users SET'
@@ -19,6 +12,11 @@ def update_user_sql(content):
     sql += ' WHERE nickname = %(nickname)s RETURNING *'
     return sql
 
+CREATE_USER_SQL = """INSERT INTO users (about, email, fullname, nickname) 
+					VALUES(%(about)s, %(email)s, %(fullname)s, %(nickname)s)"""
+
+GET_USER_SQL = """SELECT about, email, fullname, nickname 
+					FROM users WHERE nickname = %(nickname)s OR email = %(email)s"""
 
 class UserDb:
 
@@ -29,17 +27,27 @@ class UserDb:
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute(CREATE_USER_SQL, content)
         except psycopg2.IntegrityError as e:
-            print('Error %s' % e)
             code = status_codes['CONFLICT']
             with get_db_cursor() as cursor:
                 cursor.execute(GET_USER_SQL, {'nickname': content['nickname'], 'email': content['email']})
                 content = cursor.fetchall()
+        return content, code
 
-        # except psycopg2.DatabaseError as e:
-        #     print('Error %s' % e)
-        #     code = status_codes['NOT_FOUND']
-        #     content = None
-
+    @staticmethod
+    def update(content):
+        code = status_codes['OK']
+        try:
+            with get_db_cursor(commit=True) as cursor:
+                cursor.execute(update_user_sql(content=content), content)
+                content = cursor.fetchone()
+                if content is None:
+                    code = status_codes['NOT_FOUND']
+        except psycopg2.IntegrityError as e:
+            code = status_codes['CONFLICT']
+            content = None
+        except psycopg2.DatabaseError as e:
+            code = status_codes['NOT_FOUND']
+            content = None
         return content, code
 
     @staticmethod
@@ -50,7 +58,7 @@ class UserDb:
                 cursor.execute("SELECT COUNT(*) FROM users")
                 content = cursor.fetchone()
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content['count']
 
     @staticmethod
@@ -64,26 +72,7 @@ class UserDb:
                 if content is None:
                     code = status_codes['NOT_FOUND']
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
-        return content, code
-
-    @staticmethod
-    def update(content):
-        code = status_codes['OK']
-        try:
-            with get_db_cursor(commit=True) as cursor:
-                cursor.execute(update_user_sql(content=content), content)
-                content = cursor.fetchone()
-                if content is None:
-                    code = status_codes['NOT_FOUND']
-        except psycopg2.IntegrityError as e:
-            print('Error %s' % e)
-            code = status_codes['CONFLICT']
-            content = None
-        except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
-            code = status_codes['NOT_FOUND']
-            content = None
+            print('Error')
         return content, code
 
     @staticmethod
@@ -92,4 +81,4 @@ class UserDb:
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute("DELETE FROM users")
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')

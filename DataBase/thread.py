@@ -2,37 +2,33 @@ from appconfig import status_codes, format_time, get_db_cursor
 import psycopg2
 import psycopg2.extras
 
-
-UPDATE_VOTES_SQL = """SELECT update_or_insert_votes(%(nickname)s, %(thread)s, %(voice)s)"""
-
-
 def create_thread_sql(content):
-    if 'created' in content:
-        sql = """INSERT INTO threads (author, created, forum, message, slug, title) 
-        					VALUES (
-        						(
-        							SELECT nickname 
-        							FROM users 
-        							WHERE nickname = %(author)s
-        						), %(created)s,
-        						(
-        							SELECT slug
-        							FROM forums
-        							WHERE slug = %(forum)s
-        						), %(message)s, %(slug)s, %(title)s) RETURNING *"""
-    else:
+    if 'created' not in content:
         sql = """INSERT INTO threads (author, forum, message, slug, title) 
-        					VALUES (
-        						(
-        							SELECT nickname 
-        							FROM users 
-        							WHERE nickname = %(author)s
-        						),  
-        						(
-        							SELECT slug
-        							FROM forums
-        							WHERE slug = %(forum)s
-        						), %(message)s, %(slug)s, %(title)s) RETURNING *"""
+                					VALUES (
+                						(
+                							SELECT nickname 
+                							FROM users 
+                							WHERE nickname = %(author)s
+                						),  
+                						(
+                							SELECT slug
+                							FROM forums
+                							WHERE slug = %(forum)s
+                						), %(message)s, %(slug)s, %(title)s) RETURNING *"""
+    else:
+        sql = """INSERT INTO threads (author, created, forum, message, slug, title) 
+                					VALUES (
+                						(
+                							SELECT nickname 
+                							FROM users 
+                							WHERE nickname = %(author)s
+                						), %(created)s,
+                						(
+                							SELECT slug
+                							FROM forums
+                							WHERE slug = %(forum)s
+                						), %(message)s, %(slug)s, %(title)s) RETURNING *"""
     return sql
 
 def update_thread_sql(content):
@@ -50,7 +46,7 @@ def get_thread_sql(slug_or_id):
         sql = "SELECT * FROM threads WHERE slug = %(slug_or_id)s"
     return sql
 
-
+UPDATE_VOTES_SQL = """SELECT update_or_insert_votes(%(nickname)s, %(thread)s, %(voice)s)"""
 
 class ThreadDb:
 
@@ -99,6 +95,14 @@ class ThreadDb:
         return content, code
 
     @staticmethod
+    def update_votes(content):
+        try:
+            with get_db_cursor(commit=True) as cursor:
+                cursor.execute(UPDATE_VOTES_SQL, content)
+        except psycopg2.DatabaseError as e:
+            print('Error')
+
+    @staticmethod
     def count():
         content = None
         try:
@@ -106,7 +110,7 @@ class ThreadDb:
                 cursor.execute("SELECT COUNT(*) FROM threads")
                 content = cursor.fetchone()
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content['count']
 
     @staticmethod
@@ -120,7 +124,7 @@ class ThreadDb:
                 if content is None:
                     code = status_codes['NOT_FOUND']
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         if content is None:
             code = status_codes['NOT_FOUND']
         else:
@@ -128,18 +132,9 @@ class ThreadDb:
         return content, code
 
     @staticmethod
-    def update_votes(content):
-        try:
-            with get_db_cursor(commit=True) as cursor:
-                cursor.execute(UPDATE_VOTES_SQL, content)
-        except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
-
-
-    @staticmethod
     def clear():
         try:
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute("DELETE FROM threads")
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')

@@ -3,17 +3,6 @@ import psycopg2
 import psycopg2.extras
 
 
-
-CREATE_FORUM_SQL = """INSERT INTO forums ("user", slug, title)
-						VALUES ((SELECT nickname FROM users WHERE nickname = %(user)s), 
-						%(slug)s, %(title)s) RETURNING *"""
-
-GET_FORUM_SQL = """SELECT * FROM forums WHERE slug = %(slug)s"""
-
-UPDATE_THREADS_COUNT_SQL = """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(slug)s"""
-
-
-
 def get_users_sql(since, desc):
     sql = "SELECT * FROM users WHERE id IN (SELECT user_id FROM forum_users WHERE forum = %(forum)s)"
     if since is not None:
@@ -36,6 +25,13 @@ def get_threads_sql(since, desc):
     sql += " LIMIT %(limit)s"
     return sql
 
+CREATE_FORUM_SQL = """INSERT INTO forums ("user", slug, title)
+						VALUES ((SELECT nickname FROM users WHERE nickname = %(user)s), 
+						%(slug)s, %(title)s) RETURNING *"""
+
+UPDATE_THREADS_COUNT_SQL = """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(slug)s"""
+
+GET_FORUM_SQL = """SELECT * FROM forums WHERE slug = %(slug)s"""
 
 class ForumDb:
 
@@ -47,7 +43,6 @@ class ForumDb:
                 cursor.execute(CREATE_FORUM_SQL, content)
                 content = cursor.fetchone()
         except psycopg2.IntegrityError as e:
-            print('Error %s' % e)
             code = status_codes['CONFLICT']
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute(GET_FORUM_SQL, {'slug': content['slug']})
@@ -55,7 +50,6 @@ class ForumDb:
                 if content is None:
                     code = status_codes['NOT_FOUND']
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
             code = status_codes['NOT_FOUND']
             content = None
         return content, code
@@ -68,7 +62,7 @@ class ForumDb:
                 cursor.execute("SELECT COUNT(*) FROM forums")
                 content = cursor.fetchone()
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content['count']
 
     @staticmethod
@@ -78,7 +72,6 @@ class ForumDb:
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute(UPDATE_THREADS_COUNT_SQL, {'amount': amount, 'slug': slug})
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
             code = status_codes['NOT_FOUND']
         return code
 
@@ -93,7 +86,7 @@ class ForumDb:
                 if content is None:
                     code = status_codes['NOT_FOUND']
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
         return content, code
 
     @staticmethod
@@ -105,7 +98,6 @@ class ForumDb:
                 cursor.execute(get_users_sql(since=since, desc=desc), {'forum': slug, 'since': since, 'limit': limit})
                 content = cursor.fetchall()
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
             code = status_codes['NOT_FOUND']
         return content, code
 
@@ -120,7 +112,6 @@ class ForumDb:
                 for param in content:
                     param['created'] = format_time(param['created'])
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
             code = status_codes['NOT_FOUND']
         return content, code
 
@@ -130,4 +121,4 @@ class ForumDb:
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute("DELETE FROM forums")
         except psycopg2.DatabaseError as e:
-            print('Error %s' % e)
+            print('Error')
