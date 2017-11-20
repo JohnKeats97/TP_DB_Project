@@ -48,4 +48,4 @@ ENV PGPASSWORD docker
 CMD service postgresql start &&\
     cd $WORK/ &&\
     psql -h localhost -U docker -d docker -f schema_DB.sql &&\
-    gunicorn -w 4 -b :5000 main:app
+    gunicorn -w 4 -t 300 -b :5000 main:app
