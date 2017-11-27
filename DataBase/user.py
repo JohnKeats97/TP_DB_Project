@@ -12,10 +12,12 @@ def update_user_sql(content):
     sql += ' WHERE nickname = %(nickname)s RETURNING *'
     return sql
 
-CREATE_USER_SQL = """INSERT INTO users (about, email, fullname, nickname) 
+def create_user_sql():
+    return """INSERT INTO users (about, email, fullname, nickname) 
 					VALUES(%(about)s, %(email)s, %(fullname)s, %(nickname)s)"""
 
-GET_USER_SQL = """SELECT about, email, fullname, nickname 
+def get_user_sql():
+    return """SELECT about, email, fullname, nickname 
 					FROM users WHERE nickname = %(nickname)s OR email = %(email)s"""
 
 class UserDb:
@@ -25,11 +27,11 @@ class UserDb:
         code = status_codes['CREATED']
         try:
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute(CREATE_USER_SQL, content)
+                cursor.execute(create_user_sql(), content)
         except psycopg2.IntegrityError as e:
             code = status_codes['CONFLICT']
             with get_db_cursor() as cursor:
-                cursor.execute(GET_USER_SQL, {'nickname': content['nickname'], 'email': content['email']})
+                cursor.execute(get_user_sql(), {'nickname': content['nickname'], 'email': content['email']})
                 content = cursor.fetchall()
         return content, code
 
@@ -67,7 +69,7 @@ class UserDb:
         code = status_codes['OK']
         try:
             with get_db_cursor() as cursor:
-                cursor.execute(GET_USER_SQL, {'nickname': nickname, 'email': None})
+                cursor.execute(get_user_sql(), {'nickname': nickname, 'email': None})
                 content = cursor.fetchone()
                 if content is None:
                     code = status_codes['NOT_FOUND']

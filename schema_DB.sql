@@ -7,10 +7,10 @@ DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
   id       SERIAL PRIMARY KEY,
-  about    TEXT DEFAULT NULL,
-  email    citext UNIQUE,
   fullname TEXT DEFAULT NULL,
-  nickname citext COLLATE ucs_basic UNIQUE
+  nickname citext COLLATE ucs_basic UNIQUE,
+  about    TEXT DEFAULT NULL,
+  email    citext UNIQUE
 );
 
 --
@@ -31,11 +31,11 @@ DROP TABLE IF EXISTS threads CASCADE;
 
 CREATE TABLE IF NOT EXISTS threads (
   author  citext REFERENCES users (nickname) ON DELETE CASCADE  NOT NULL,
-  created TIMESTAMPTZ DEFAULT NOW(),
   forum   citext REFERENCES forums (slug) ON DELETE CASCADE     NOT NULL,
+  created TIMESTAMPTZ DEFAULT NOW(),
   id      SERIAL PRIMARY KEY,
-  message TEXT        DEFAULT NULL,
   slug    citext UNIQUE,
+  message TEXT        DEFAULT NULL,
   title   TEXT                                                  NOT NULL,
   votes   INTEGER     DEFAULT 0
 );
@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS threads (
 DROP TABLE IF EXISTS votes CASCADE;
 
 CREATE TABLE IF NOT EXISTS votes (
+  voice    INTEGER DEFAULT 0,
   nickname citext REFERENCES users (nickname) ON DELETE CASCADE,
   thread   INTEGER REFERENCES threads (id) ON DELETE CASCADE,
-  voice    INTEGER DEFAULT 0,
   CONSTRAINT unique_pair UNIQUE (nickname, thread)
 );
 
@@ -66,13 +66,13 @@ DROP TABLE IF EXISTS posts CASCADE;
 
 CREATE TABLE IF NOT EXISTS posts (
   author   citext REFERENCES users (nickname) ON DELETE CASCADE      NOT NULL,
-  created  TIMESTAMPTZ DEFAULT NOW(),
   forum    citext REFERENCES forums (slug) ON DELETE CASCADE         NOT NULL,
+  created  TIMESTAMPTZ DEFAULT NOW(),
   id       SERIAL PRIMARY KEY,
   isEdited BOOLEAN     DEFAULT FALSE,
   message  TEXT        DEFAULT NULL,
-  parent   INTEGER     DEFAULT 0,
   thread   INTEGER REFERENCES threads (id) ON DELETE CASCADE         NOT NULL,
+  parent   INTEGER     DEFAULT 0,
   path     INTEGER [],
   root_id  INTEGER
 );

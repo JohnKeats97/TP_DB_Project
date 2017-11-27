@@ -25,13 +25,16 @@ def get_threads_sql(since, desc):
     sql += " LIMIT %(limit)s"
     return sql
 
-CREATE_FORUM_SQL = """INSERT INTO forums ("user", slug, title)
+def create_forum_sql ():
+    return """INSERT INTO forums ("user", slug, title)
 						VALUES ((SELECT nickname FROM users WHERE nickname = %(user)s), 
 						%(slug)s, %(title)s) RETURNING *"""
 
-UPDATE_THREADS_COUNT_SQL = """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(slug)s"""
+def update_threads_count_sql ():
+    return """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(slug)s"""
 
-GET_FORUM_SQL = """SELECT * FROM forums WHERE slug = %(slug)s"""
+def get_forum_sql ():
+    return """SELECT * FROM forums WHERE slug = %(slug)s"""
 
 class ForumDb:
 
@@ -40,12 +43,12 @@ class ForumDb:
         code = status_codes['CREATED']
         try:
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute(CREATE_FORUM_SQL, content)
+                cursor.execute(create_forum_sql(), content)
                 content = cursor.fetchone()
         except psycopg2.IntegrityError as e:
             code = status_codes['CONFLICT']
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute(GET_FORUM_SQL, {'slug': content['slug']})
+                cursor.execute(get_forum_sql(), {'slug': content['slug']})
                 content = cursor.fetchone()
                 if content is None:
                     code = status_codes['NOT_FOUND']
@@ -70,7 +73,7 @@ class ForumDb:
         code = status_codes['OK']
         try:
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute(UPDATE_THREADS_COUNT_SQL, {'amount': amount, 'slug': slug})
+                cursor.execute(update_threads_count_sql(), {'amount': amount, 'slug': slug})
         except psycopg2.DatabaseError as e:
             code = status_codes['NOT_FOUND']
         return code
@@ -81,7 +84,7 @@ class ForumDb:
         code = status_codes['OK']
         try:
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute(GET_FORUM_SQL, {'slug': slug})
+                cursor.execute(get_forum_sql(), {'slug': slug})
                 content = cursor.fetchone()
                 if content is None:
                     code = status_codes['NOT_FOUND']

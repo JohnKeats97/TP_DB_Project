@@ -46,7 +46,8 @@ def get_thread_sql(slug_or_id):
         sql = "SELECT * FROM threads WHERE slug = %(slug_or_id)s"
     return sql
 
-UPDATE_VOTES_SQL = """SELECT update_or_insert_votes(%(nickname)s, %(thread)s, %(voice)s)"""
+def update_votes_sql():
+    return """SELECT update_or_insert_votes(%(nickname)s, %(thread)s, %(voice)s)"""
 
 class ThreadDb:
 
@@ -98,7 +99,7 @@ class ThreadDb:
     def update_votes(content):
         try:
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute(UPDATE_VOTES_SQL, content)
+                cursor.execute(update_votes_sql(), content)
         except psycopg2.DatabaseError as e:
             print('Error')
 

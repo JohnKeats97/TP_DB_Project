@@ -66,18 +66,21 @@ def posts_parent_tree_sort_sql(slug_or_id, limit, since, desc):
 
     return sql
 
-INSERT_POSTS_SQL = \
-    """INSERT INTO posts (author, created, forum, id, message, parent, thread, path, root_id) VALUES %s"""
+def insert_posts_sql():
+    return """INSERT INTO posts (author, created, forum, id, message, parent, thread, path, root_id) VALUES %s"""
 
-GET_POST_SQL = """SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE id = %(id)s"""
+def get_post_sql():
+    return """SELECT author, created, forum, id, isEdited, message, parent, thread FROM posts WHERE id = %(id)s"""
 
-GET_PATH_SQL = """SELECT path FROM posts WHERE id = %(parent)s"""
+def get_path_sql():
+    return """SELECT path FROM posts WHERE id = %(parent)s"""
 
-UPDATE_POST_SQL = """UPDATE posts SET message = %(message)s, isEdited = TRUE WHERE id = %(id)s RETURNING 
+def update_post_sql():
+    return """UPDATE posts SET message = %(message)s, isEdited = TRUE WHERE id = %(id)s RETURNING 
 						author, created, forum, id, isEdited, message, parent, thread"""
 
-UPDATE_POSTS_ON_FORUM_SQL = """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(forum)s"""
-
+def update_posts_on_forum_sql():
+    return """UPDATE forums SET posts = posts + %(amount)s WHERE slug = %(forum)s"""
 
 class PostsDb:
 
@@ -116,7 +119,7 @@ class PostsDb:
         content = None
         try:
             with get_db_cursor() as cursor:
-                cursor.execute(GET_PATH_SQL, {'parent': parent})
+                cursor.execute(get_path_sql(), {'parent': parent})
                 content = cursor.fetchone()
         except psycopg2.DatabaseError as e:
             print('Error')
@@ -128,7 +131,7 @@ class PostsDb:
         code = status_codes['OK']
         try:
             with get_db_cursor() as cursor:
-                cursor.execute(GET_POST_SQL, {'id': identifier})
+                cursor.execute(get_post_sql(), {'id': identifier})
                 content = cursor.fetchone()
                 if content is None:
                     code = status_codes['NOT_FOUND']
@@ -145,8 +148,8 @@ class PostsDb:
         code = status_codes['CREATED']
         try:
             with get_db_cursor(commit=True) as cursor:
-                psycopg2.extras.execute_values(cursor, INSERT_POSTS_SQL, data)
-                cursor.execute(UPDATE_POSTS_ON_FORUM_SQL, {'amount': len(data), 'forum': forum})
+                psycopg2.extras.execute_values(cursor, insert_posts_sql(), data)
+                cursor.execute(update_posts_on_forum_sql(), {'amount': len(data), 'forum': forum})
         except psycopg2.IntegrityError as e:
             code = status_codes['NOT_FOUND']
         except psycopg2.DatabaseError as e:
@@ -158,7 +161,7 @@ class PostsDb:
         code = status_codes['OK']
         try:
             with get_db_cursor(commit=True) as cursor:
-                cursor.execute(UPDATE_POST_SQL, {'message': content['message'], 'id': identifier})
+                cursor.execute(update_post_sql(), {'message': content['message'], 'id': identifier})
                 content = cursor.fetchone()
                 if content is None:
                     code = status_codes['NOT_FOUND']
