@@ -18,28 +18,24 @@ public class ThreadFunctions extends LowerFunctions{
 
     public ThreadModel create(final String author, final String created, final String forum,
                               final String message, final String slug, final String title) {
-        final Integer threadId = getJdbcTemplate().queryForObject("SELECT thread_insert(?, ?, ?, ?, ?, ?)",
+        final Integer threadId = getJdbcTemplate().queryForObject(ThreadQueries.thread_insertQuery(),
                 new Object[]{author, created, forum, message, slug, title}, Integer.class);
         return getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(threadId.toString()),
                 new Object[]{threadId}, readThread);
     }
 
     public void update(final String message, final String title, final String slug_or_id) {
-        final StringBuilder sql = new StringBuilder("UPDATE threads SET");
         final List<Object> args = new ArrayList<>();
         if (message != null) {
-            sql.append(" message = ?,");
             args.add(message);
         }
         if (title != null) {
-            sql.append(" title = ?,");
             args.add(title);
         }
         if (!args.isEmpty()) {
-            sql.delete(sql.length() - 1, sql.length());
-            sql.append(slug_or_id.matches("\\d+") ? " WHERE id = ?" : " WHERE slug = ?");
             args.add(slug_or_id);
-            getJdbcTemplate().update(sql.toString(), args.toArray());
+            getJdbcTemplate().update(ThreadQueries.updateQuery(message, title, slug_or_id),
+                    args.toArray());
         }
     }
 
@@ -51,10 +47,8 @@ public class ThreadFunctions extends LowerFunctions{
         final Integer userId = getJdbcTemplate().queryForObject(UserQueries.findUserIdQuery(), Integer.class, view.getNickname());
         final Integer threadId = slug_or_id.matches("\\d+") ? Integer.valueOf(slug_or_id) :
                 getJdbcTemplate().queryForObject(ThreadQueries.getThreadId(), Integer.class, slug_or_id);
-        final StringBuilder query = new StringBuilder("SELECT update_or_insert_votes(");
-        query.append(userId.toString()).append(", ").append(threadId.toString())
-                .append(", ").append(view.getVoice()).append(")");
-        getJdbcTemplate().execute(query.toString());
+        getJdbcTemplate().execute(ThreadQueries.updateVotesQuery(userId.toString(),
+                threadId.toString(), view.getVoice()));
         return getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(slug_or_id), new Object[]{slug_or_id}, readThread);
     }
 

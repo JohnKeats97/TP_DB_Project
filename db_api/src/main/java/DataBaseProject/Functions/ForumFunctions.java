@@ -26,36 +26,25 @@ public class ForumFunctions extends LowerFunctions {
     }
 
     public List<ThreadModel> findAllThreads(String slug, Integer limit, String since, Boolean desc) {
-        final StringBuilder sql = new StringBuilder(ForumQueries.getThreadsByForumQuery());
         final List<Object> args = new ArrayList<>();
         args.add(slug);
         if (since != null) {
-            sql.append(" AND t.created ");
-            sql.append(desc == Boolean.TRUE ? "<= ?" : ">= ?");
             args.add(since);
         }
-        sql.append(" ORDER BY t.created");
-        sql.append(desc == Boolean.TRUE ? " DESC" : "");
-        sql.append(" LIMIT ?");
         args.add(limit);
-        return getJdbcTemplate().query(sql.toString(), args.toArray(new Object[args.size()]), readThread);
+        return getJdbcTemplate().query(ForumQueries.findAllThreadsQuery(since, desc),
+                args.toArray(new Object[args.size()]), readThread);
     }
 
     public List<UserModel> findAllUsers(String slug, Integer limit, String since, Boolean desc) {
-        final Integer forumId = getJdbcTemplate().queryForObject("SELECT id FROM forums WHERE slug = ?", Integer.class, slug);
-        final StringBuilder sql = new StringBuilder(ForumQueries.getUsersByForumQuery());
         final List<Object> args = new ArrayList<>();
+        final Integer forumId = getJdbcTemplate().queryForObject(ForumQueries.findIdBySlugQuery(), Integer.class, slug);
         args.add(forumId);
         if (since != null) {
-            sql.append(" AND u.nickname ");
-            sql.append(desc == Boolean.TRUE ? "< ?" : "> ?");
             args.add(since);
         }
-        sql.append(" ORDER BY u.nickname COLLATE ucs_basic");
-        sql.append(desc == Boolean.TRUE ? " DESC" : "");
-        sql.append(" LIMIT ?");
         args.add(limit);
-        return getJdbcTemplate().query(sql.toString(), args.toArray(), readUser);
+        return getJdbcTemplate().query(ForumQueries.findAllUsersQuery(since, desc), args.toArray(), readUser);
     }
 
     public Integer count() {

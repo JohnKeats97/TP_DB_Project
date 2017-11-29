@@ -25,4 +25,20 @@ public class UserQueries {
     public static String clearTableQuery() {
         return "DELETE FROM users";
     }
+
+    public static String updateQuery(String about, String email, String fullname) {
+        final StringBuilder query = new StringBuilder("UPDATE users SET");
+        if (about != null) {
+            query.append(" about = ?,");
+        }
+        if (email != null) {
+            query.append(" email = ?,");
+        }
+        if (fullname != null) {
+            query.append(" fullname = ?,");
+        }
+        query.delete(query.length() - 1, query.length());
+        query.append(" WHERE nickname = ?");
+        return query.toString();
+    }
 }

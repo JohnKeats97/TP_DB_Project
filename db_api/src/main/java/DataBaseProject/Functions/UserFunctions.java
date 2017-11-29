@@ -19,25 +19,20 @@ public class UserFunctions extends LowerFunctions {
     }
 
     public void update(final String about, final String email, final String fullname, final String nickname) {
-        final StringBuilder sql = new StringBuilder("UPDATE users SET");
         final List<Object> args = new ArrayList<>();
         if (about != null) {
-            sql.append(" about = ?,");
             args.add(about);
         }
         if (email != null) {
-            sql.append(" email = ?,");
             args.add(email);
         }
         if (fullname != null) {
-            sql.append(" fullname = ?,");
             args.add(fullname);
         }
         if (!args.isEmpty()) {
-            sql.delete(sql.length() - 1, sql.length());
-            sql.append(" WHERE nickname = ?");
             args.add(nickname);
-            getJdbcTemplate().update(sql.toString(), args.toArray());
+            getJdbcTemplate().update(UserQueries.updateQuery(about, email, fullname)
+                    , args.toArray());
         }
     }
 

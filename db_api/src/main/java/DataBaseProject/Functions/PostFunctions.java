@@ -31,10 +31,9 @@ public class PostFunctions extends LowerFunctions {
         Integer postId = 0;
         try (Connection connection = getJdbcTemplate().getDataSource().getConnection()) {
             connection.setAutoCommit(false);
-
-            try (CallableStatement callableStatement = connection.prepareCall("{call post_insert(?, ?, ?, ?, ?, ?, ?)}")) {
+            try (CallableStatement callableStatement = connection.prepareCall(PostQueries.post_insertQuery())) {
                 for (PostModel post : posts) {
-                    postId = getJdbcTemplate().queryForObject("SELECT nextval('posts_id_seq')", Integer.class);
+                    postId = getJdbcTemplate().queryForObject(PostQueries.nextvalQuery(), Integer.class);
                     callableStatement.setString(1, post.getAuthor());
                     callableStatement.setTimestamp(2, created);
                     callableStatement.setInt(3, forumId);
@@ -58,29 +57,22 @@ public class PostFunctions extends LowerFunctions {
             throw new DataRetrievalFailureException(null);
         }
         if (postId.equals(1000000)) {
-            getJdbcTemplate().execute("" +
-                    "CREATE INDEX IF NOT EXISTS post_flat_idx" +
-                    "  ON posts (thread_id, created, id);" +
-                    "CREATE INDEX IF NOT EXISTS posts_path_thread_id_idx" +
-                    "  ON posts (thread_id, path);" +
-                    "CREATE INDEX IF NOT EXISTS posts_path_help_idx" +
-                    "  ON posts (root_id, path);" +
-                    "CREATE INDEX IF NOT EXISTS posts_multi_idx" +
-                    "  ON posts (thread_id, parent, id);");
+            getJdbcTemplate().execute(PostQueries.createPostIndex());
         }
         getJdbcTemplate().update(ThreadQueries.updateForumsPostsCount(), posts.size(), forumId);
     }
 
     public PostModel update(final String message, final Integer id) {
         final PostModel post = findById(id);
-        final StringBuilder sql = new StringBuilder("UPDATE posts SET message = ?");
+        final StringBuilder query = new StringBuilder("UPDATE posts SET message = ?"); //
         if (!message.equals(post.getMessage())) {
-            sql.append(", is_edited = TRUE");
+            query.append(", is_edited = TRUE"); //
             post.setIsEdited(true);
             post.setMessage(message);
         }
-        sql.append(" WHERE id = ?");
-        getJdbcTemplate().update(sql.toString(), message, id);
+        query.append(" WHERE id = ?"); //
+        getJdbcTemplate().update(query.toString(), message, id);
+//        getJdbcTemplate().update(PostQueries.updatePost(message.equals(post.getMessage())), message, id);
         return post;
     }
 

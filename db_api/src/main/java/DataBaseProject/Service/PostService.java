@@ -22,7 +22,7 @@ public class PostService {
         this.postFunctions = new PostFunctions(jdbcTemplate);
     }
 
-    public ResponseEntity<Object> viewForumGet (String[] related, final Integer id) {
+    public ResponseEntity<Object> viewForumGetService (String[] related, final Integer id) {
         final PostDetailedModel post;
         try {
             post = postFunctions.detailedView(id, related);
@@ -32,7 +32,7 @@ public class PostService {
         return ResponseEntity.status(HttpStatus.OK).body(post);
     }
 
-    public ResponseEntity<Object> viewForumPost (PostModel post, Integer id) {
+    public ResponseEntity<Object> viewForumPostService (PostModel post, Integer id) {
         try {
             post = post.getMessage() != null ? postFunctions.update(post.getMessage(), id) : postFunctions.findById(id);
         } catch (DataAccessException ex) {

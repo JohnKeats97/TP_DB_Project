@@ -39,7 +39,7 @@ public class Routers {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> createForum(@RequestBody final ForumModel forum) {
 
-        return forumSer.createForum(forum);
+        return forumSer.createForumService(forum);
     }
 
     @RequestMapping(value = "/forum/{slug}/create", method = RequestMethod.POST,
@@ -47,13 +47,13 @@ public class Routers {
     public ResponseEntity<Object> createSlug(@RequestBody ThreadModel thread,
                                              @PathVariable(value = "slug") final String slug) {
 
-        return forumSer.createSlug(thread, slug);
+        return forumSer.createSlugService(thread, slug);
     }
 
     @RequestMapping(value = "/forum/{slug}/details", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> viewForum(@PathVariable("slug") final String slug) {
 
-        return forumSer.viewForum(slug);
+        return forumSer.viewForumService(slug);
     }
 
     @SuppressWarnings("Duplicates")
@@ -64,7 +64,7 @@ public class Routers {
             @RequestParam(value = "desc", required = false, defaultValue = "false") final Boolean desc,
             @PathVariable("slug") final String slug) {
 
-        return forumSer.viewThreads(limit, since, desc, slug);
+        return forumSer.viewThreadsService(limit, since, desc, slug);
     }
 
     @SuppressWarnings("Duplicates")
@@ -75,7 +75,7 @@ public class Routers {
             @RequestParam(value = "desc", required = false, defaultValue = "false") final Boolean desc,
             @PathVariable("slug") final String slug) {
 
-        return forumSer.viewUsers(limit, since, desc, slug);
+        return forumSer.viewUsersService(limit, since, desc, slug);
     }
 
 
@@ -87,14 +87,14 @@ public class Routers {
     public ResponseEntity<Object> viewForumGet(
             @RequestParam(value = "related", required = false) String[] related, @PathVariable("id") final Integer id) {
 
-        return postSer.viewForumGet(related, id);
+        return postSer.viewForumGetService(related, id);
     }
 
     @RequestMapping(value = "/post/{id}/details", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> viewForumPost(@RequestBody PostModel post, @PathVariable("id") final Integer id) {
 
-        return postSer.viewForumPost(post, id);
+        return postSer.viewForumPostService(post, id);
     }
 
     /**
@@ -103,13 +103,13 @@ public class Routers {
     @RequestMapping("/service/status")
     public ResponseEntity<Object> serverStatus() {
 
-        return serviceSer.serverStatus();
+        return serviceSer.serverStatusService();
     }
 
     @RequestMapping("/service/clear")
     public ResponseEntity<Object> clearService() {
 
-        return serviceSer.clearService();
+        return serviceSer.clearServiceService();
     }
 
 
@@ -121,13 +121,13 @@ public class Routers {
     public ResponseEntity<Object> createPosts(@RequestBody List<PostModel> posts,
                                               @PathVariable(value = "slug_or_id") final String slug_or_id) {
 
-        return threadSer.createPosts(posts, slug_or_id);
+        return threadSer.createPostsService(posts, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/details", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> viewThread(@PathVariable(value = "slug_or_id") final String slug_or_id) {
 
-        return threadSer.viewThread(slug_or_id);
+        return threadSer.viewThreadService(slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/details", method = RequestMethod.POST,
@@ -135,7 +135,7 @@ public class Routers {
     public ResponseEntity<Object> updateThread(@RequestBody ThreadModel thread,
                                                @PathVariable(value = "slug_or_id") final String slug_or_id) {
 
-        return threadSer.updateThread(thread, slug_or_id);
+        return threadSer.updateThreadService(thread, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/vote", method = RequestMethod.POST,
@@ -143,7 +143,7 @@ public class Routers {
     public ResponseEntity<Object> voteForThread(@RequestBody final VoteModel vote,
                                                 @PathVariable("slug_or_id") final String slug_or_id) {
 
-        return threadSer.voteForThread(vote, slug_or_id);
+        return threadSer.voteForThreadService(vote, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/posts", method = RequestMethod.GET,
@@ -154,7 +154,7 @@ public class Routers {
                                          @RequestParam(value = "sort", required = false) final String sort,
                                          @RequestParam(value = "desc", required = false) final Boolean desc) {
 
-        return threadSer.getPostsSorted(slug_or_id, limit, since, sort, desc);
+        return threadSer.getPostsSortedService(slug_or_id, limit, since, sort, desc);
     }
 
 
@@ -166,13 +166,13 @@ public class Routers {
     public ResponseEntity<Object> createUser(@RequestBody UserModel user,
                                              @PathVariable(value = "nickname") String nickname) {
 
-        return userSer.createUser(user, nickname);
+        return userSer.createUserService(user, nickname);
     }
 
     @RequestMapping(value = "/user/{nickname}/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> viewProfile(@PathVariable(value = "nickname") String nickname) {
 
-        return userSer.viewProfile(nickname);
+        return userSer.viewProfileService(nickname);
     }
 
     @RequestMapping(value = "/user/{nickname}/profile", method = RequestMethod.POST,
@@ -180,7 +180,7 @@ public class Routers {
     public ResponseEntity<Object> modifyProfile(@RequestBody UserModel user,
                                                 @PathVariable(value = "nickname") String nickname) {
 
-        return userSer.modifyProfile(user, nickname);
+        return userSer.modifyProfileService(user, nickname);
     }
 
 }
