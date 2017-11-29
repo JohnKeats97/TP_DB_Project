@@ -45,11 +45,11 @@ RUN apt-get install -y openjdk-8-jdk-headless
 RUN apt-get install -y maven
 
 # Копируем исходный код в Docker-контейнер
-ENV WORK /opt/TP_DB_Project
-ADD DataBase/ $WORK/DataBase/
+ENV WORK /opt/Park_DB_API_Project
+ADD db_api/ $WORK/db_api/
 
 # Собираем и устанавливаем пакет
-WORKDIR $WORK/DataBase
+WORKDIR $WORK/db_api
 RUN mvn package
 
 # Объявлем порт сервера
