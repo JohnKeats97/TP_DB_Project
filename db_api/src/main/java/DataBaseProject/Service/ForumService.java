@@ -2,8 +2,8 @@ package DataBaseProject.Service;
 
 import DataBaseProject.Functions.ForumFunctions;
 import DataBaseProject.Functions.ThreadFunctions;
-import DataBaseProject.Models.ForumModel;
-import DataBaseProject.Models.ThreadModel;
+import DataBaseProject.ResponseModels.ForumModel;
+import DataBaseProject.ResponseModels.ThreadModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;

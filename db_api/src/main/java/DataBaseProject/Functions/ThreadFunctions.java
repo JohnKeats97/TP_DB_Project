@@ -2,8 +2,8 @@ package DataBaseProject.Functions;
 
 import DataBaseProject.Queries.ThreadQueries;
 import DataBaseProject.Queries.UserQueries;
-import DataBaseProject.Models.ThreadModel;
-import DataBaseProject.Models.VoteModel;
+import DataBaseProject.ResponseModels.ThreadModel;
+import DataBaseProject.ResponseModels.VoteModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 

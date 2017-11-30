@@ -94,19 +94,10 @@ public class PostQueries {
 
     public static String updatePost(Boolean equal) {
         final StringBuilder query = new StringBuilder("UPDATE posts SET message = ?");
-        if (!equal) {  // equal   ???
+        if (!equal) {
             query.append(", is_edited = TRUE");
         }
         query.append(" WHERE id = ?");
-        return query.toString();
-    }
-
-    public static String createPostIndex() {
-        final StringBuilder query = new StringBuilder();
-        query.append(" CREATE INDEX IF NOT EXISTS post_flat_idx  ON posts (thread_id, created, id); ");
-        query.append(" CREATE INDEX IF NOT EXISTS posts_path_thread_id_idx  ON posts (thread_id, path); ");
-        query.append(" CREATE INDEX IF NOT EXISTS posts_path_help_idx  ON posts (root_id, path); ");
-        query.append(" CREATE INDEX IF NOT EXISTS posts_multi_idx  ON posts (thread_id, parent, id);");
         return query.toString();
     }
 }

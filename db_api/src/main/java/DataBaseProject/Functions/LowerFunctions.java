@@ -1,9 +1,9 @@
 package DataBaseProject.Functions;
 
-import DataBaseProject.Models.ForumModel;
-import DataBaseProject.Models.PostModel;
-import DataBaseProject.Models.ThreadModel;
-import DataBaseProject.Models.UserModel;
+import DataBaseProject.ResponseModels.ForumModel;
+import DataBaseProject.ResponseModels.PostModel;
+import DataBaseProject.ResponseModels.ThreadModel;
+import DataBaseProject.ResponseModels.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

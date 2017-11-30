@@ -1,4 +1,4 @@
-package DataBaseProject.Models;
+package DataBaseProject.ResponseModels;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;

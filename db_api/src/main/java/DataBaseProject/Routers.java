@@ -1,7 +1,7 @@
 package DataBaseProject;
 
 import DataBaseProject.Service.*;
-import DataBaseProject.Models.*;
+import DataBaseProject.ResponseModels.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,9 +59,9 @@ public class Routers {
     @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/forum/{slug}/threads", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> viewThreads(
-            @RequestParam(value = "limit", required = false, defaultValue = "100") final Integer limit,
+            @RequestParam(value = "limit", required = false) final Integer limit,
             @RequestParam(value = "since", required = false) final String since,
-            @RequestParam(value = "desc", required = false, defaultValue = "false") final Boolean desc,
+            @RequestParam(value = "desc", required = false) final Boolean desc,
             @PathVariable("slug") final String slug) {
 
         return forumSer.viewThreadsService(limit, since, desc, slug);
@@ -70,9 +70,9 @@ public class Routers {
     @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/forum/{slug}/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> viewUsers(
-            @RequestParam(value = "limit", required = false, defaultValue = "100") final Integer limit,
+            @RequestParam(value = "limit", required = false) final Integer limit,
             @RequestParam(value = "since", required = false) final String since,
-            @RequestParam(value = "desc", required = false, defaultValue = "false") final Boolean desc,
+            @RequestParam(value = "desc", required = false) final Boolean desc,
             @PathVariable("slug") final String slug) {
 
         return forumSer.viewUsersService(limit, since, desc, slug);

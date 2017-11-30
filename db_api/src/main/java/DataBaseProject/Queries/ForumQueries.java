@@ -14,9 +14,6 @@ public class ForumQueries {
         return query.toString();
     }
 
-    public static String updateThreadsCountQuery() {
-        return "UPDATE forums SET threads = threads + 1 WHERE slug = ?";
-    }
 
     public static String getThreadsByForumQuery() {
         final StringBuilder query = new StringBuilder();

@@ -3,9 +3,9 @@ package DataBaseProject.Service;
 
 import DataBaseProject.Functions.PostFunctions;
 import DataBaseProject.Functions.ThreadFunctions;
-import DataBaseProject.Models.PostModel;
-import DataBaseProject.Models.ThreadModel;
-import DataBaseProject.Models.VoteModel;
+import DataBaseProject.ResponseModels.PostModel;
+import DataBaseProject.ResponseModels.ThreadModel;
+import DataBaseProject.ResponseModels.VoteModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;

@@ -4,7 +4,7 @@ import DataBaseProject.Functions.ForumFunctions;
 import DataBaseProject.Functions.PostFunctions;
 import DataBaseProject.Functions.ThreadFunctions;
 import DataBaseProject.Functions.UserFunctions;
-import DataBaseProject.Models.StatusReturnModel;
+import DataBaseProject.ResponseModels.StatusReturnModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

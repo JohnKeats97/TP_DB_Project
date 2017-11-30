@@ -1,7 +1,7 @@
 package DataBaseProject.Service;
 
 import DataBaseProject.Functions.UserFunctions;
-import DataBaseProject.Models.UserModel;
+import DataBaseProject.ResponseModels.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;

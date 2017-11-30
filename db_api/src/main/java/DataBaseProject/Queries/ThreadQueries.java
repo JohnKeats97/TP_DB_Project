@@ -13,20 +13,6 @@ public class ThreadQueries {
         return "SELECT id FROM threads WHERE slug = ?";
     }
 
-    public static String createThreadWithTimeQuery() {
-        final StringBuilder query = new StringBuilder();
-        query.append("INSERT INTO threads (user_id, created, forum_id, message, slug, title) ");
-        query.append("  VALUES((SELECT id FROM users WHERE nickname = ?), ?, (SELECT id FROM forums WHERE slug = ?), ?, ?, ?) RETURNING id");
-        return query.toString();
-    }
-
-    public static String createThreadWithoutTimeQuery() {
-        final StringBuilder query = new StringBuilder();
-        query.append("INSERT INTO threads (user_id, forum_id, message, slug, title) ");
-        query.append("  VALUES((SELECT id FROM users WHERE nickname = ?), (SELECT id FROM forums WHERE slug = ?), ?, ?, ?) RETURNING id");
-        return query.toString();
-    }
-
     public static String updateForumsPostsCount() {
         return "UPDATE forums SET posts = posts + ? WHERE forums.id = ?";
     }
@@ -41,10 +27,6 @@ public class ThreadQueries {
         String id_slug = (slug_or_id.matches("\\d+") ? "t.id = ?" : "t.slug = ?");
         query.append(id_slug);
         return query.toString();
-    }
-
-    public static String updateThreadVotesQuery() {
-        return "UPDATE threads SET votes = (SELECT SUM(voice) FROM users WHERE thread_id = ?) WHERE id = ?";
     }
 
     public static String countThreadsQuery() {

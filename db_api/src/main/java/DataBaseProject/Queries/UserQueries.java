@@ -14,10 +14,6 @@ public class UserQueries {
         return "SELECT id FROM users WHERE nickname = ?";
     }
 
-    public static String updateUserVoteQuery() {
-        return "UPDATE users SET thread_id = ?, voice = ? WHERE nickname = ?";
-    }
-
     public static String countUsersQuery() {
         return "SELECT COUNT(*) FROM users";
     }

@@ -4,7 +4,7 @@ import DataBaseProject.Queries.ForumQueries;
 import DataBaseProject.Queries.PostQueries;
 import DataBaseProject.Queries.ThreadQueries;
 import DataBaseProject.Queries.UserQueries;
-import DataBaseProject.Models.*;
+import DataBaseProject.ResponseModels.*;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -56,23 +56,16 @@ public class PostFunctions extends LowerFunctions {
         } catch (SQLException ex) {
             throw new DataRetrievalFailureException(null);
         }
-        if (postId.equals(1000000)) {
-            getJdbcTemplate().execute(PostQueries.createPostIndex());
-        }
         getJdbcTemplate().update(ThreadQueries.updateForumsPostsCount(), posts.size(), forumId);
     }
 
     public PostModel update(final String message, final Integer id) {
         final PostModel post = findById(id);
-        final StringBuilder query = new StringBuilder("UPDATE posts SET message = ?"); //
+        getJdbcTemplate().update(PostQueries.updatePost(message.equals(post.getMessage())), message, id);
         if (!message.equals(post.getMessage())) {
-            query.append(", is_edited = TRUE"); //
             post.setIsEdited(true);
             post.setMessage(message);
         }
-        query.append(" WHERE id = ?"); //
-        getJdbcTemplate().update(query.toString(), message, id);
-//        getJdbcTemplate().update(PostQueries.updatePost(message.equals(post.getMessage())), message, id);
         return post;
     }
 

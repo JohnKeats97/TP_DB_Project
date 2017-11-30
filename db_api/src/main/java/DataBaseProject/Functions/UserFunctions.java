@@ -1,7 +1,7 @@
 package DataBaseProject.Functions;
 
 import DataBaseProject.Queries.UserQueries;
-import DataBaseProject.Models.UserModel;
+import DataBaseProject.ResponseModels.UserModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
