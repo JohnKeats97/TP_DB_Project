@@ -10,6 +10,7 @@ DROP INDEX IF EXISTS threads_user_id_idx;
 DROP INDEX IF EXISTS threads_forum_id_idx;
 DROP INDEX IF EXISTS posts_user_id_idx;
 DROP INDEX IF EXISTS posts_forum_id_idx;
+DROP INDEX IF EXISTS posts_thread_id_idx;
 DROP INDEX IF EXISTS posts_flat_idx;
 DROP INDEX IF EXISTS posts_path_thread_id_idx;
 DROP INDEX IF EXISTS posts_path_help_idx;
@@ -78,6 +79,8 @@ CREATE INDEX IF NOT EXISTS posts_user_id_idx
   ON posts (user_id);
 CREATE INDEX IF NOT EXISTS posts_forum_id_idx
   ON posts (forum_id);
+CREATE INDEX IF NOT EXISTS posts_thread_id_idx
+  ON posts(thread_id);
 CREATE INDEX IF NOT EXISTS posts_flat_idx
   ON posts (thread_id, created, id);
 CREATE INDEX IF NOT EXISTS posts_path_thread_id_idx

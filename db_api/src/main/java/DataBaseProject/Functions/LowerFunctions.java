@@ -15,6 +15,7 @@ import java.util.TimeZone;
 
 
 public class LowerFunctions extends JdbcDaoSupport {
+
     @Autowired
     public LowerFunctions(JdbcTemplate jdbcTemplate) {
         setJdbcTemplate(jdbcTemplate);

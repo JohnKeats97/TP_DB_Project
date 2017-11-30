@@ -13,6 +13,7 @@ import java.util.List;
 
 @Service
 public class ForumFunctions extends LowerFunctions {
+
     public ForumFunctions(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
     }

@@ -12,6 +12,7 @@ import java.util.List;
 
 @Service
 public class ThreadFunctions extends LowerFunctions{
+
     public ThreadFunctions(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
     }

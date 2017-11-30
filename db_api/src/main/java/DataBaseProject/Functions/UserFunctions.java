@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class UserFunctions extends LowerFunctions {
+
     public UserFunctions(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
     }

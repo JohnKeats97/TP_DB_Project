@@ -17,6 +17,7 @@ import java.util.TimeZone;
 
 @Service
 public class PostFunctions extends LowerFunctions {
+
     public PostFunctions(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
     }

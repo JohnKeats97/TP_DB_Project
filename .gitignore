@@ -5,3 +5,9 @@ __pycache__/
 DataBase/target/
 
 db_api/target/
+
+report\.html
+
+tech-db-forum
+
+tech-db-forum\.dat\.gz
