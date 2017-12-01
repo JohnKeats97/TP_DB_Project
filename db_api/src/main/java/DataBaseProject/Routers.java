@@ -37,45 +37,45 @@ public class Routers {
      */
     @RequestMapping(value = "/forum/create", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createForum(@RequestBody final ForumModel forum) {
+    public ResponseEntity<Object> create_forum(@RequestBody final ForumModel forum) {
 
-        return forumSer.createForumService(forum);
+        return forumSer.create_forumService(forum);
     }
 
     @RequestMapping(value = "/forum/{slug}/create", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createSlug(@RequestBody ThreadModel thread,
+    public ResponseEntity<Object> create_thread(@RequestBody ThreadModel thread,
                                              @PathVariable(value = "slug") final String slug) {
 
-        return forumSer.createSlugService(thread, slug);
+        return forumSer.create_threadService(thread, slug);
     }
 
     @RequestMapping(value = "/forum/{slug}/details", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> viewForum(@PathVariable("slug") final String slug) {
+    public ResponseEntity<Object> view_forum_info(@PathVariable("slug") final String slug) {
 
-        return forumSer.viewForumService(slug);
+        return forumSer.view_forum_infoService(slug);
     }
 
     @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/forum/{slug}/threads", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> viewThreads(
+    public ResponseEntity<Object> get_forum_threads(
             @RequestParam(value = "limit", required = false) final Integer limit,
             @RequestParam(value = "since", required = false) final String since,
             @RequestParam(value = "desc", required = false) final Boolean desc,
             @PathVariable("slug") final String slug) {
 
-        return forumSer.viewThreadsService(limit, since, desc, slug);
+        return forumSer.get_forum_threadsService(limit, since, desc, slug);
     }
 
     @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/forum/{slug}/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> viewUsers(
+    public ResponseEntity<Object> get_forum_users(
             @RequestParam(value = "limit", required = false) final Integer limit,
             @RequestParam(value = "since", required = false) final String since,
             @RequestParam(value = "desc", required = false) final Boolean desc,
             @PathVariable("slug") final String slug) {
 
-        return forumSer.viewUsersService(limit, since, desc, slug);
+        return forumSer.get_forum_usersService(limit, since, desc, slug);
     }
 
 
@@ -84,32 +84,32 @@ public class Routers {
      *  post
      */
     @RequestMapping(value = "/post/{id}/details", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> viewForumGet(
+    public ResponseEntity<Object> get_post_detailedGet(
             @RequestParam(value = "related", required = false) String[] related, @PathVariable("id") final Integer id) {
 
-        return postSer.viewForumGetService(related, id);
+        return postSer.get_post_detailedGetService(related, id);
     }
 
     @RequestMapping(value = "/post/{id}/details", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> viewForumPost(@RequestBody PostModel post, @PathVariable("id") final Integer id) {
+    public ResponseEntity<Object> get_post_detailedPost(@RequestBody PostModel post, @PathVariable("id") final Integer id) {
 
-        return postSer.viewForumPostService(post, id);
+        return postSer.get_post_detailedPostService(post, id);
     }
 
     /**
      *  service
      */
     @RequestMapping("/service/status")
-    public ResponseEntity<Object> serverStatus() {
+    public ResponseEntity<Object> status() {
 
-        return serviceSer.serverStatusService();
+        return serviceSer.statusService();
     }
 
     @RequestMapping("/service/clear")
-    public ResponseEntity<Object> clearService() {
+    public ResponseEntity<Object> clear() {
 
-        return serviceSer.clearServiceService();
+        return serviceSer.clearService();
     }
 
 
@@ -118,43 +118,43 @@ public class Routers {
      */
     @RequestMapping(value = "/thread/{slug_or_id}/create", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createPosts(@RequestBody List<PostModel> posts,
+    public ResponseEntity<Object> create_posts(@RequestBody List<PostModel> posts,
                                               @PathVariable(value = "slug_or_id") final String slug_or_id) {
 
-        return threadSer.createPostsService(posts, slug_or_id);
+        return threadSer.create_postsService(posts, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/details", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> viewThread(@PathVariable(value = "slug_or_id") final String slug_or_id) {
+    public ResponseEntity<Object> view_threadGet(@PathVariable(value = "slug_or_id") final String slug_or_id) {
 
-        return threadSer.viewThreadService(slug_or_id);
+        return threadSer.view_threadGetService(slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/details", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateThread(@RequestBody ThreadModel thread,
+    public ResponseEntity<Object> view_threadPost(@RequestBody ThreadModel thread,
                                                @PathVariable(value = "slug_or_id") final String slug_or_id) {
 
-        return threadSer.updateThreadService(thread, slug_or_id);
+        return threadSer.view_threadPostService(thread, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/vote", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> voteForThread(@RequestBody final VoteModel vote,
+    public ResponseEntity<Object> vote(@RequestBody final VoteModel vote,
                                                 @PathVariable("slug_or_id") final String slug_or_id) {
 
-        return threadSer.voteForThreadService(vote, slug_or_id);
+        return threadSer.voteService(vote, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/posts", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getPostsSorted(@PathVariable(value = "slug_or_id") final String slug_or_id,
+    public ResponseEntity<Object> get_posts_sorted(@PathVariable(value = "slug_or_id") final String slug_or_id,
                                          @RequestParam(value = "limit", required = false) final Integer limit,
                                          @RequestParam(value = "since", required = false) final Integer since,
                                          @RequestParam(value = "sort", required = false) final String sort,
                                          @RequestParam(value = "desc", required = false) final Boolean desc) {
 
-        return threadSer.getPostsSortedService(slug_or_id, limit, since, sort, desc);
+        return threadSer.get_posts_sortedService(slug_or_id, limit, since, sort, desc);
     }
 
 
@@ -163,10 +163,10 @@ public class Routers {
      */
     @RequestMapping(value = "/user/{nickname}/create", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createUser(@RequestBody UserModel user,
+    public ResponseEntity<Object> create_user(@RequestBody UserModel user,
                                              @PathVariable(value = "nickname") String nickname) {
 
-        return userSer.createUserService(user, nickname);
+        return userSer.create_userService(user, nickname);
     }
 
     @RequestMapping(value = "/user/{nickname}/profile", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -177,10 +177,10 @@ public class Routers {
 
     @RequestMapping(value = "/user/{nickname}/profile", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> modifyProfile(@RequestBody UserModel user,
+    public ResponseEntity<Object> modify_profile(@RequestBody UserModel user,
                                                 @PathVariable(value = "nickname") String nickname) {
 
-        return userSer.modifyProfileService(user, nickname);
+        return userSer.modify_profileService(user, nickname);
     }
 
 }

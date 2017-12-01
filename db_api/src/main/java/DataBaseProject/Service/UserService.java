@@ -21,7 +21,7 @@ public class UserService {
     }
 
 
-    public ResponseEntity<Object> createUserService (UserModel user, String nickname) {
+    public ResponseEntity<Object> create_userService (UserModel user, String nickname) {
         try {
             userFunctions.create(user.getAbout(), user.getEmail(), user.getFullname(), nickname);
         } catch (DuplicateKeyException ex) {
@@ -44,7 +44,7 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    public ResponseEntity<Object> modifyProfileService (UserModel user, String nickname) {
+    public ResponseEntity<Object> modify_profileService (UserModel user, String nickname) {
         try {
             userFunctions.update(user.getAbout(), user.getEmail(), user.getFullname(), nickname);
             user = userFunctions.findSingleByNickOrMail(nickname, user.getEmail());

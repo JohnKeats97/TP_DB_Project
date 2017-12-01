@@ -1,30 +1,30 @@
-DROP TABLE IF EXISTS posts CASCADE;
-DROP TABLE IF EXISTS threads CASCADE;
+CREATE EXTENSION IF NOT EXISTS CITEXT;
+
+DROP TABLE IF EXISTS forum_users CASCADE;
 DROP TABLE IF EXISTS forums CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS forum_users CASCADE;
+DROP TABLE IF EXISTS threads CASCADE;
+DROP TABLE IF EXISTS posts CASCADE;
 DROP TABLE IF EXISTS votes CASCADE;
 
-DROP INDEX IF EXISTS forums_user_id_idx;
-DROP INDEX IF EXISTS threads_user_id_idx;
-DROP INDEX IF EXISTS threads_forum_id_idx;
-DROP INDEX IF EXISTS posts_user_id_idx;
-DROP INDEX IF EXISTS posts_forum_id_idx;
-DROP INDEX IF EXISTS posts_thread_id_idx;
+DROP INDEX IF EXISTS forums_user_id;
+DROP INDEX IF EXISTS forum_users_user_id;
+DROP INDEX IF EXISTS forum_users_forum_id;
+DROP INDEX IF EXISTS posts_user_id;
+DROP INDEX IF EXISTS posts_forum_id;
+DROP INDEX IF EXISTS posts_thread_id;
+DROP INDEX IF EXISTS threads_user_id;
+DROP INDEX IF EXISTS threads_forum_id;
+DROP INDEX IF EXISTS posts_path_thread_id;
+DROP INDEX IF EXISTS posts_path_root_id;
 DROP INDEX IF EXISTS posts_flat_idx;
-DROP INDEX IF EXISTS posts_path_thread_id_idx;
-DROP INDEX IF EXISTS posts_path_help_idx;
 DROP INDEX IF EXISTS posts_multi_idx;
-DROP INDEX IF EXISTS forum_users_user_id_idx;
-DROP INDEX IF EXISTS forum_users_forum_id_idx;
 
 DROP FUNCTION IF EXISTS thread_insert( CITEXT, TIMESTAMPTZ, CITEXT, TEXT, CITEXT, TEXT );
 DROP FUNCTION IF EXISTS post_insert( CITEXT, TIMESTAMPTZ, INTEGER, INTEGER, TEXT, INTEGER, INTEGER );
 DROP FUNCTION IF EXISTS update_or_insert_votes( INTEGER, INTEGER, INTEGER );
 
-CREATE EXTENSION IF NOT EXISTS CITEXT;
 
-SET SYNCHRONOUS_COMMIT = 'off';
 
 CREATE TABLE IF NOT EXISTS users (
   id       SERIAL PRIMARY KEY,
@@ -43,68 +43,77 @@ CREATE TABLE IF NOT EXISTS forums (
   title   TEXT                                            NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS forums_user_id_idx
-  ON forums (user_id);
+CREATE TABLE IF NOT EXISTS forum_users (
+  user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE,
+  forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS threads (
-  user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE  NOT NULL,
-  created  TIMESTAMPTZ DEFAULT NOW(),
-  forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE NOT NULL,
   id       SERIAL PRIMARY KEY,
+  user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE  NOT NULL,
+  forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE NOT NULL,
+  created  TIMESTAMPTZ DEFAULT NOW(),
   message  TEXT        DEFAULT NULL,
   slug     CITEXT UNIQUE,
   title    TEXT                                             NOT NULL,
   votes    INTEGER     DEFAULT 0
 );
 
-CREATE INDEX IF NOT EXISTS threads_user_id_idx
-  ON threads (user_id);
-CREATE INDEX IF NOT EXISTS threads_forum_id_idx
-  ON threads (forum_id);
-
 CREATE TABLE IF NOT EXISTS posts (
-  user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE   NOT NULL,
-  created   TIMESTAMPTZ DEFAULT NOW(),
-  forum_id  INTEGER REFERENCES forums (id) ON DELETE CASCADE  NOT NULL,
   id        SERIAL PRIMARY KEY,
+  user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE   NOT NULL,
+  forum_id  INTEGER REFERENCES forums (id) ON DELETE CASCADE  NOT NULL,
+  thread_id INTEGER REFERENCES threads (id) ON DELETE CASCADE NOT NULL,
+  created   TIMESTAMPTZ DEFAULT NOW(),
   is_edited BOOLEAN     DEFAULT FALSE,
   message   TEXT        DEFAULT NULL,
   parent    INTEGER     DEFAULT 0,
-  thread_id INTEGER REFERENCES threads (id) ON DELETE CASCADE NOT NULL,
   path      INTEGER []                                        NOT NULL,
   root_id   INTEGER
 );
 
-CREATE INDEX IF NOT EXISTS posts_user_id_idx
-  ON posts (user_id);
-CREATE INDEX IF NOT EXISTS posts_forum_id_idx
-  ON posts (forum_id);
-CREATE INDEX IF NOT EXISTS posts_thread_id_idx
-  ON posts(thread_id);
-CREATE INDEX IF NOT EXISTS posts_flat_idx
-  ON posts (thread_id, created, id);
-CREATE INDEX IF NOT EXISTS posts_path_thread_id_idx
-  ON posts (thread_id, path);
-CREATE INDEX IF NOT EXISTS posts_path_help_idx
-  ON posts (root_id, path);
-CREATE INDEX IF NOT EXISTS posts_multi_idx
-  ON posts (thread_id, parent, id);
-
-CREATE TABLE IF NOT EXISTS forum_users (
-  user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE,
-  forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE
-);
-
-CREATE INDEX IF NOT EXISTS forum_users_user_id_idx
-  ON forum_users (user_id);
-CREATE INDEX IF NOT EXISTS forum_users_forum_id_idx
-  ON forum_users (forum_id);
 
 CREATE TABLE IF NOT EXISTS votes (
   user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE,
   thread_id INTEGER REFERENCES threads (id) ON DELETE CASCADE,
   voice     INTEGER DEFAULT 0
 );
+
+
+CREATE INDEX IF NOT EXISTS forums_user_id
+  ON forums (user_id);
+CREATE INDEX IF NOT EXISTS forums_slug --++
+  ON forums (slug);
+CREATE INDEX IF NOT EXISTS forum_users_user_id --
+  ON forum_users (user_id);
+CREATE INDEX IF NOT EXISTS forum_users_forum_id --
+  ON forum_users (forum_id);
+CREATE INDEX IF NOT EXISTS posts_user_id
+  ON posts (user_id);
+CREATE INDEX IF NOT EXISTS posts_forum_id
+  ON posts (forum_id);
+CREATE INDEX IF NOT EXISTS posts_thread_id
+  ON posts (thread_id);
+CREATE INDEX IF NOT EXISTS threads_user_id
+  ON threads (user_id);
+CREATE INDEX IF NOT EXISTS threads_forum_id
+  ON threads (forum_id);
+CREATE INDEX IF NOT EXISTS threads_forum_id_created --++
+  ON threads (forum_id, created);
+CREATE INDEX IF NOT EXISTS forums_slug_id --++
+  ON forums (slug, id);
+CREATE INDEX IF NOT EXISTS treads_slug_id --++
+  ON threads (slug, id);
+CREATE INDEX IF NOT EXISTS tree_sort_posts
+  ON posts (thread_id, path);
+CREATE INDEX IF NOT EXISTS parent_tree_sort_posts
+  ON posts (root_id, path);
+CREATE INDEX IF NOT EXISTS sort_flat
+  ON posts (thread_id, created, id);
+CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_2
+  ON posts (thread_id, parent, id);
+
+
 
 CREATE OR REPLACE FUNCTION thread_insert(thread_author  CITEXT, thread_created TIMESTAMPTZ, forum_slug CITEXT,
                                          thread_message TEXT, thread_slug CITEXT, thread_title TEXT)
@@ -131,10 +140,10 @@ BEGIN
     RETURNING id
       INTO thread_id;
   ELSE
-  INSERT INTO threads (user_id, created, forum_id, message, slug, title)
-  VALUES (thread_user_id, thread_created, thread_forum_id, thread_message, thread_slug, thread_title)
-  RETURNING id
-    INTO thread_id;
+    INSERT INTO threads (user_id, created, forum_id, message, slug, title)
+    VALUES (thread_user_id, thread_created, thread_forum_id, thread_message, thread_slug, thread_title)
+    RETURNING id
+      INTO thread_id;
   END IF;
   --
   UPDATE forums
@@ -146,12 +155,13 @@ BEGIN
       FROM forum_users
       WHERE forum_id = thread_forum_id AND user_id = thread_user_id)
   THEN
-  INSERT INTO forum_users (user_id, forum_id) VALUES (thread_user_id, thread_forum_id);
+    INSERT INTO forum_users (user_id, forum_id) VALUES (thread_user_id, thread_forum_id);
   END IF;
   --
   RETURN thread_id;
 END;
 ' LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION post_insert(post_author    CITEXT, post_created TIMESTAMPTZ, post_forum_id INTEGER,
                                        post_id        INTEGER, post_message TEXT, post_parent INTEGER,
@@ -184,6 +194,7 @@ BEGIN
   END IF;
 END;
 ' LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION update_or_insert_votes(vote_user_id INTEGER, vote_thread_it INTEGER, vote_value INTEGER)
   RETURNS VOID AS '

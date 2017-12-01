@@ -31,7 +31,7 @@ public class ThreadService {
         this.threadFunctions = new ThreadFunctions(jdbcTemplate);
     }
 
-    public ResponseEntity<Object> createPostsService (List<PostModel> posts, String slug_or_id) {
+    public ResponseEntity<Object> create_postsService (List<PostModel> posts, String slug_or_id) {
         try {
             ThreadModel thread = threadFunctions.findByIdOrSlug(slug_or_id);
             if (posts.isEmpty()) {
@@ -62,7 +62,7 @@ public class ThreadService {
         return ResponseEntity.status(HttpStatus.CREATED).body(posts);
     }
 
-    public ResponseEntity<Object> viewThreadService (String slug_or_id) {
+    public ResponseEntity<Object> view_threadGetService (String slug_or_id) {
         final ThreadModel thread;
         try {
             thread = threadFunctions.findByIdOrSlug(slug_or_id);
@@ -72,7 +72,7 @@ public class ThreadService {
         return ResponseEntity.status(HttpStatus.OK).body(thread);
     }
 
-    public ResponseEntity<Object> updateThreadService (ThreadModel thread, String slug_or_id) {
+    public ResponseEntity<Object> view_threadPostService (ThreadModel thread, String slug_or_id) {
         try {
             threadFunctions.update(thread.getMessage(), thread.getTitle(), slug_or_id);
             thread = threadFunctions.findByIdOrSlug(slug_or_id);
@@ -84,7 +84,7 @@ public class ThreadService {
         return ResponseEntity.status(HttpStatus.OK).body(thread);
     }
 
-    public ResponseEntity<Object> voteForThreadService (VoteModel vote, String slug_or_id) {
+    public ResponseEntity<Object> voteService (VoteModel vote, String slug_or_id) {
         final ThreadModel thread;
         try {
             thread = threadFunctions.updateVotes(vote, slug_or_id);
@@ -96,7 +96,7 @@ public class ThreadService {
         return ResponseEntity.status(HttpStatus.OK).body(thread);
     }
 
-    public ResponseEntity<Object> getPostsSortedService (String slug_or_id, Integer limit, Integer since, String sort, Boolean desc) {
+    public ResponseEntity<Object> get_posts_sortedService (String slug_or_id, Integer limit, Integer since, String sort, Boolean desc) {
         try {
             ThreadModel thread = threadFunctions.findByIdOrSlug(slug_or_id);
             List<PostModel> result = postFunctions.sort(thread, slug_or_id, limit, since, sort, desc);

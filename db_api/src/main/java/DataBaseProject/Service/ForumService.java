@@ -27,7 +27,7 @@ public class ForumService {
         this.threadFunctions = new ThreadFunctions(jdbcTemplate);
     }
 
-    public ResponseEntity<Object> createForumService(ForumModel forum) {
+    public ResponseEntity<Object> create_forumService(ForumModel forum) {
 
         try {
             forumFunctions.create(forum.getUser(), forum.getSlug(), forum.getTitle());
@@ -39,7 +39,7 @@ public class ForumService {
         return ResponseEntity.status(HttpStatus.CREATED).body(forumFunctions.findBySlug(forum.getSlug()));
     }
 
-    public ResponseEntity<Object> createSlugService(ThreadModel thread, String slug) {
+    public ResponseEntity<Object> create_threadService(ThreadModel thread, String slug) {
         final String threadSlug = thread.getSlug();
         try {
             thread = threadFunctions.create(thread.getAuthor(), thread.getCreated(), slug,
@@ -52,7 +52,7 @@ public class ForumService {
         return ResponseEntity.status(HttpStatus.CREATED).body(thread);
     }
 
-    public ResponseEntity<Object> viewForumService(String slug) {
+    public ResponseEntity<Object> view_forum_infoService(String slug) {
         final ForumModel forum;
         try {
             forum = forumFunctions.findBySlug(slug);
@@ -62,7 +62,7 @@ public class ForumService {
         return ResponseEntity.status(HttpStatus.OK).body(forum);
     }
 
-    public ResponseEntity<Object> viewThreadsService(Integer limit, String since, Boolean desc, String slug) {
+    public ResponseEntity<Object> get_forum_threadsService(Integer limit, String since, Boolean desc, String slug) {
         try {
             final ForumModel forum = forumFunctions.findBySlug(slug);
         } catch (DataAccessException ex) {
@@ -71,7 +71,7 @@ public class ForumService {
         return ResponseEntity.status(HttpStatus.OK).body(forumFunctions.findAllThreads(slug, limit, since, desc));
     }
 
-    public ResponseEntity<Object> viewUsersService(Integer limit, String since, Boolean desc, String slug) {
+    public ResponseEntity<Object> get_forum_usersService(Integer limit, String since, Boolean desc, String slug) {
         try {
             final ForumModel forum = forumFunctions.findBySlug(slug);
         } catch (DataAccessException ex) {

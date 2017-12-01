@@ -29,7 +29,7 @@ public class ServiceService {
         this.userFunctions = new UserFunctions(jdbcTemplate);
     }
 
-    public ResponseEntity<Object> serverStatusService () {
+    public ResponseEntity<Object> statusService () {
         final Integer forumsCount = forumFunctions.count();
         final Integer postsCount = postFunctions.count();
         final Integer threadsCount = threadFunctions.count();
@@ -37,7 +37,7 @@ public class ServiceService {
         return ResponseEntity.status(HttpStatus.OK).body(new StatusReturnModel(forumsCount, postsCount, threadsCount, usersCount));
     }
 
-    public ResponseEntity<Object> clearServiceService () {
+    public ResponseEntity<Object> clearService () {
         postFunctions.clear();
         threadFunctions.clear();
         forumFunctions.clear();
