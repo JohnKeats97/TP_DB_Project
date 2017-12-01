@@ -2,6 +2,7 @@ package DataBaseProject.Queries;
 
 
 public class UserQueries {
+
     public static String createUserQuery() {
         return "INSERT INTO users (about, email, fullname, nickname) VALUES(?, ?, ?, ?)";
     }

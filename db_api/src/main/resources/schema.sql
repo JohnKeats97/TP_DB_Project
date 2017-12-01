@@ -10,11 +10,17 @@ DROP TABLE IF EXISTS votes CASCADE;
 DROP INDEX IF EXISTS forums_user_id;
 DROP INDEX IF EXISTS forum_users_user_id;
 DROP INDEX IF EXISTS forum_users_forum_id;
+DROP INDEX IF EXISTS forums_slug;
+DROP INDEX IF EXISTS posts_id;
 DROP INDEX IF EXISTS posts_user_id;
 DROP INDEX IF EXISTS posts_forum_id;
 DROP INDEX IF EXISTS posts_thread_id;
 DROP INDEX IF EXISTS threads_user_id;
 DROP INDEX IF EXISTS threads_forum_id;
+DROP INDEX IF EXISTS threads_forum_id_created;
+DROP INDEX IF EXISTS forums_slug_id;
+DROP INDEX IF EXISTS treads_slug_id;
+DROP INDEX IF EXISTS post_id_path;
 DROP INDEX IF EXISTS posts_path_thread_id;
 DROP INDEX IF EXISTS posts_path_root_id;
 DROP INDEX IF EXISTS posts_flat_idx;
@@ -82,12 +88,14 @@ CREATE TABLE IF NOT EXISTS votes (
 
 CREATE INDEX IF NOT EXISTS forums_user_id
   ON forums (user_id);
-CREATE INDEX IF NOT EXISTS forums_slug --++
+CREATE INDEX IF NOT EXISTS forums_slug
   ON forums (slug);
-CREATE INDEX IF NOT EXISTS forum_users_user_id --
+CREATE INDEX IF NOT EXISTS forum_users_user_id -- fill
   ON forum_users (user_id);
-CREATE INDEX IF NOT EXISTS forum_users_forum_id --
+CREATE INDEX IF NOT EXISTS forum_users_forum_id -- fill
   ON forum_users (forum_id);
+CREATE INDEX IF NOT EXISTS posts_id
+  ON posts (id);
 CREATE INDEX IF NOT EXISTS posts_user_id
   ON posts (user_id);
 CREATE INDEX IF NOT EXISTS posts_forum_id
@@ -98,12 +106,14 @@ CREATE INDEX IF NOT EXISTS threads_user_id
   ON threads (user_id);
 CREATE INDEX IF NOT EXISTS threads_forum_id
   ON threads (forum_id);
-CREATE INDEX IF NOT EXISTS threads_forum_id_created --++
+CREATE INDEX IF NOT EXISTS threads_forum_id_created
   ON threads (forum_id, created);
-CREATE INDEX IF NOT EXISTS forums_slug_id --++
+CREATE INDEX IF NOT EXISTS forums_slug_id
   ON forums (slug, id);
-CREATE INDEX IF NOT EXISTS treads_slug_id --++
+CREATE INDEX IF NOT EXISTS treads_slug_id
   ON threads (slug, id);
+CREATE INDEX IF NOT EXISTS post_id_path
+  ON posts (id, path);
 CREATE INDEX IF NOT EXISTS tree_sort_posts
   ON posts (thread_id, path);
 CREATE INDEX IF NOT EXISTS parent_tree_sort_posts

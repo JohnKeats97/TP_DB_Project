@@ -2,6 +2,7 @@ package DataBaseProject.Queries;
 
 
 public class ThreadQueries {
+
     public static String getForumIdQuery() {
         final StringBuilder query = new StringBuilder("SELECT forums.id FROM forums ");
         query.append("JOIN threads ON (threads.forum_id = forums.id) ");

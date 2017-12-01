@@ -2,6 +2,7 @@ package DataBaseProject.Queries;
 
 
 public class PostQueries {
+
     public static String createPostsQuery() {
         final StringBuilder query = new StringBuilder();
         query.append("INSERT INTO posts (user_id, created, forum_id, id, message, parent, thread_id, path) VALUES(");
@@ -14,8 +15,8 @@ public class PostQueries {
         final StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, p.created, f.slug, p.id, p.is_edited, p.message, p.parent, p.thread_id ");
         query.append("FROM posts p");
-        query.append("  JOIN users u ON (u.id = p.user_id)");
-        query.append("  JOIN forums f ON (f.id = p.forum_id) ");
+        query.append("  JOIN forums f ON (f.id = p.forum_id)  ");
+        query.append("  JOIN users u ON (u.id = p.user_id)  ");
         query.append("WHERE p.id = ?");
         return query.toString();
     }

@@ -2,15 +2,19 @@ package DataBaseProject.Queries;
 
 
 public class ForumQueries {
+
     public static String createForumQuery() {
         return "INSERT INTO forums (user_id, slug, title) VALUES((SELECT id FROM users WHERE nickname = ?), ?, ?)";
     }
 
     public static String getForumQuery() {
         final StringBuilder query = new StringBuilder("SELECT f.posts, f.slug, f.threads, f.title, u.nickname ");
-        query.append("FROM forums f ");
-        query.append("  JOIN users u ON (f.user_id = u.id)");
-        query.append("  WHERE f.slug = ?");
+        query.append("FROM forums f "); //
+        query.append("  JOIN users u ON (f.user_id = u.id)"); //
+//        query.append("  JOIN users u ON (f.user_id = u.id AND f.slug = ?)"); // -2
+        query.append("  WHERE f.slug = ?"); //
+        //query.append("FROM users u "); // -1
+//        query.append("  JOIN forums f ON (u.id = f.user_id AND f.slug = ?)"); // -1
         return query.toString();
     }
 
@@ -20,8 +24,7 @@ public class ForumQueries {
         query.append("SELECT u.nickname, t.created, f.slug as f_slug, t.id, t.message, t.slug as t_slug, t.title, t.votes ");
         query.append("FROM threads t ");
         query.append("  JOIN users u ON (t.user_id = u.id)");
-        query.append("  JOIN forums f ON (t.forum_id = f.id) ");
-        query.append("  WHERE f.slug = ?");
+        query.append("  JOIN forums f ON (t.forum_id = f.id AND f.slug = ?)");
         return query.toString();
     }
 
@@ -42,11 +45,12 @@ public class ForumQueries {
     public static String getUsersByForumQuery() {
         final StringBuilder query = new StringBuilder("SELECT u.about, u.email, u.fullname, u.nickname ");
         query.append("FROM users u ");
-        query.append("WHERE u.id IN (");
-        query.append("  SELECT user_id ");
-        query.append("  FROM forum_users ");
-        query.append("  WHERE forum_id = ?");
-        query.append(")");
+//        query.append("JOIN forum_users fu ON u.id = fu.user_id AND fu.forum_id = ?"); // поменять местами
+        query.append("WHERE u.id IN ("); //
+        query.append("  SELECT user_id "); //
+        query.append("  FROM forum_users "); //
+        query.append("  WHERE forum_id = ?"); //
+        query.append(")"); //
         return query.toString();
     }
 
