@@ -9,22 +9,19 @@ public class ForumQueries {
 
     public static String getForumQuery() {
         final StringBuilder query = new StringBuilder("SELECT f.posts, f.slug, f.threads, f.title, u.nickname ");
-        query.append("FROM forums f "); //
-        query.append("  JOIN users u ON (f.user_id = u.id)"); //
-//        query.append("  JOIN users u ON (f.user_id = u.id AND f.slug = ?)"); // -2
-        query.append("  WHERE f.slug = ?"); //
-        //query.append("FROM users u "); // -1
-//        query.append("  JOIN forums f ON (u.id = f.user_id AND f.slug = ?)"); // -1
+        query.append("FROM users u ");
+        query.append("  JOIN forums f ON u.id = f.user_id AND f.slug = ?");  // поменять местами ??
         return query.toString();
     }
 
 
     public static String getThreadsByForumQuery() {
         final StringBuilder query = new StringBuilder();
-        query.append("SELECT u.nickname, t.created, f.slug as f_slug, t.id, t.message, t.slug as t_slug, t.title, t.votes ");
-        query.append("FROM threads t ");
-        query.append("  JOIN users u ON (t.user_id = u.id)");
-        query.append("  JOIN forums f ON (t.forum_id = f.id AND f.slug = ?)");
+        // медленно
+        query.append("FROM users u ");
+        query.append("  JOIN forum_users fu ON u.id = fu.user_id");
+        query.append("  JOIN forums f ON fu.forum_id = f.id AND f.slug = ?"); // поменять местами??
+        query.append("  JOIN threads t ON u.id = t.user_id AND t.forum_id = f.id ");
         return query.toString();
     }
 

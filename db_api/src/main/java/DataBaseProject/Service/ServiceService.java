@@ -38,10 +38,10 @@ public class ServiceService {
     }
 
     public ResponseEntity<Object> clearService () {
-        postFunctions.clear();
-        threadFunctions.clear();
-        forumFunctions.clear();
         userFunctions.clear();
+        forumFunctions.clear();
+        threadFunctions.clear();
+        postFunctions.clear();
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

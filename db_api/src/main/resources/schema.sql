@@ -11,14 +11,17 @@ DROP INDEX IF EXISTS forums_user_id;
 DROP INDEX IF EXISTS forum_users_user_id;
 DROP INDEX IF EXISTS forum_users_forum_id;
 DROP INDEX IF EXISTS forums_slug;
+DROP INDEX IF EXISTS users_nickname;
 DROP INDEX IF EXISTS posts_id;
 DROP INDEX IF EXISTS posts_user_id;
 DROP INDEX IF EXISTS posts_forum_id;
 DROP INDEX IF EXISTS posts_thread_id;
 DROP INDEX IF EXISTS threads_user_id;
 DROP INDEX IF EXISTS threads_forum_id;
+DROP INDEX IF EXISTS threads_user_id_forum_id;
 DROP INDEX IF EXISTS threads_forum_id_created;
 DROP INDEX IF EXISTS forums_slug_id;
+DROP INDEX IF EXISTS users_nickname_id;
 DROP INDEX IF EXISTS treads_slug_id;
 DROP INDEX IF EXISTS post_id_path;
 DROP INDEX IF EXISTS posts_path_thread_id;
@@ -43,6 +46,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS forums (
   id      SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+  --user_autor   TEXT                                        DEFAULT NULL,
   posts   INTEGER DEFAULT 0,
   threads INTEGER DEFAULT 0,
   slug    CITEXT UNIQUE                                   NOT NULL,
@@ -57,6 +61,7 @@ CREATE TABLE IF NOT EXISTS forum_users (
 CREATE TABLE IF NOT EXISTS threads (
   id       SERIAL PRIMARY KEY,
   user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE  NOT NULL,
+  --autor    TEXT                                        DEFAULT NULL,
   forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE NOT NULL,
   created  TIMESTAMPTZ DEFAULT NOW(),
   message  TEXT        DEFAULT NULL,
@@ -68,6 +73,7 @@ CREATE TABLE IF NOT EXISTS threads (
 CREATE TABLE IF NOT EXISTS posts (
   id        SERIAL PRIMARY KEY,
   user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE   NOT NULL,
+  --autor     TEXT                                        DEFAULT NULL,
   forum_id  INTEGER REFERENCES forums (id) ON DELETE CASCADE  NOT NULL,
   thread_id INTEGER REFERENCES threads (id) ON DELETE CASCADE NOT NULL,
   created   TIMESTAMPTZ DEFAULT NOW(),
@@ -90,6 +96,8 @@ CREATE INDEX IF NOT EXISTS forums_user_id
   ON forums (user_id);
 CREATE INDEX IF NOT EXISTS forums_slug
   ON forums (slug);
+CREATE INDEX IF NOT EXISTS users_nickname
+  ON users (nickname);
 CREATE INDEX IF NOT EXISTS forum_users_user_id -- fill
   ON forum_users (user_id);
 CREATE INDEX IF NOT EXISTS forum_users_forum_id -- fill
@@ -106,10 +114,14 @@ CREATE INDEX IF NOT EXISTS threads_user_id
   ON threads (user_id);
 CREATE INDEX IF NOT EXISTS threads_forum_id
   ON threads (forum_id);
+CREATE INDEX IF NOT EXISTS threads_user_id_forum_id
+  ON threads (user_id, forum_id);
 CREATE INDEX IF NOT EXISTS threads_forum_id_created
   ON threads (forum_id, created);
 CREATE INDEX IF NOT EXISTS forums_slug_id
   ON forums (slug, id);
+CREATE INDEX IF NOT EXISTS users_nickname_id
+  ON users (nickname, id);
 CREATE INDEX IF NOT EXISTS treads_slug_id
   ON threads (slug, id);
 CREATE INDEX IF NOT EXISTS post_id_path

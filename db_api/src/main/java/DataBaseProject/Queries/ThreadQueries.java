@@ -5,8 +5,7 @@ public class ThreadQueries {
 
     public static String getForumIdQuery() {
         final StringBuilder query = new StringBuilder("SELECT forums.id FROM forums ");
-        query.append("JOIN threads ON (threads.forum_id = forums.id) ");
-        query.append("WHERE threads.id = ?");
+        query.append("JOIN threads ON threads.forum_id = forums.id AND threads.id = ?"); //  поменять местами ??
         return query.toString();
     }
 
@@ -21,10 +20,11 @@ public class ThreadQueries {
     public static String getThreadQuery(final String slug_or_id) {
         final StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, t.created, f.slug AS f_slug, t.id, t.message, t.slug AS t_slug, t.title, t.votes ");
-        query.append("FROM threads t ");
-        query.append("  JOIN users u ON (t.user_id = u.id)");
-        query.append("  JOIN forums f ON (t.forum_id = f.id) ");
-        query.append("  WHERE ");
+        // медленно
+        query.append("FROM users u ");
+        query.append("  JOIN forum_users fu ON u.id = fu.user_id");
+        query.append("  JOIN forums f ON fu.forum_id = f.id");
+        query.append("  JOIN threads t ON u.id = t.user_id AND t.forum_id = f.id AND ");
         String id_slug = (slug_or_id.matches("\\d+") ? "t.id = ?" : "t.slug = ?");
         query.append(id_slug);
         return query.toString();
