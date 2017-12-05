@@ -29,28 +29,28 @@ DROP INDEX IF EXISTS posts_path_root_id;
 DROP INDEX IF EXISTS posts_flat_idx;
 DROP INDEX IF EXISTS posts_multi_idx;
 
-DROP FUNCTION IF EXISTS thread_insert( CITEXT, TIMESTAMPTZ, CITEXT, TEXT, CITEXT, TEXT );
-DROP FUNCTION IF EXISTS post_insert( CITEXT, TIMESTAMPTZ, INTEGER, INTEGER, TEXT, INTEGER, INTEGER );
+DROP FUNCTION IF EXISTS thread_insert( CITEXT, TIMESTAMPTZ, CITEXT, CITEXT, CITEXT, CITEXT );
+DROP FUNCTION IF EXISTS post_insert( CITEXT, TIMESTAMPTZ, INTEGER, INTEGER, CITEXT, INTEGER, INTEGER );
 DROP FUNCTION IF EXISTS update_or_insert_votes( INTEGER, INTEGER, INTEGER );
 
 
 
 CREATE TABLE IF NOT EXISTS users (
   id       SERIAL PRIMARY KEY,
-  about    TEXT DEFAULT NULL,
+  about    CITEXT DEFAULT NULL,
   email    CITEXT UNIQUE,
-  fullname TEXT DEFAULT NULL,
+  fullname CITEXT DEFAULT NULL,
   nickname CITEXT COLLATE ucs_basic UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS forums (
   id      SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-  --user_autor   TEXT                                        DEFAULT NULL,
+  user_autor   CITEXT                                        DEFAULT NULL,
   posts   INTEGER DEFAULT 0,
   threads INTEGER DEFAULT 0,
   slug    CITEXT UNIQUE                                   NOT NULL,
-  title   TEXT                                            NOT NULL
+  title   CITEXT                                            NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS forum_users (
@@ -61,24 +61,24 @@ CREATE TABLE IF NOT EXISTS forum_users (
 CREATE TABLE IF NOT EXISTS threads (
   id       SERIAL PRIMARY KEY,
   user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE  NOT NULL,
-  --autor    TEXT                                        DEFAULT NULL,
+  autor    CITEXT                                        DEFAULT NULL,
   forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE NOT NULL,
   created  TIMESTAMPTZ DEFAULT NOW(),
-  message  TEXT        DEFAULT NULL,
+  message  CITEXT        DEFAULT NULL,
   slug     CITEXT UNIQUE,
-  title    TEXT                                             NOT NULL,
+  title    CITEXT                                             NOT NULL,
   votes    INTEGER     DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS posts (
   id        SERIAL PRIMARY KEY,
   user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE   NOT NULL,
-  --autor     TEXT                                        DEFAULT NULL,
+  autor     CITEXT                                        DEFAULT NULL,
   forum_id  INTEGER REFERENCES forums (id) ON DELETE CASCADE  NOT NULL,
   thread_id INTEGER REFERENCES threads (id) ON DELETE CASCADE NOT NULL,
   created   TIMESTAMPTZ DEFAULT NOW(),
   is_edited BOOLEAN     DEFAULT FALSE,
-  message   TEXT        DEFAULT NULL,
+  message   CITEXT        DEFAULT NULL,
   parent    INTEGER     DEFAULT 0,
   path      INTEGER []                                        NOT NULL,
   root_id   INTEGER
@@ -138,7 +138,7 @@ CREATE INDEX IF NOT EXISTS parent_tree_sort_posts_2
 
 
 CREATE OR REPLACE FUNCTION thread_insert(thread_author  CITEXT, thread_created TIMESTAMPTZ, forum_slug CITEXT,
-                                         thread_message TEXT, thread_slug CITEXT, thread_title TEXT)
+                                         thread_message CITEXT, thread_slug CITEXT, thread_title CITEXT)
   RETURNS INTEGER AS '
 DECLARE
   thread_id       INTEGER;
@@ -186,7 +186,7 @@ END;
 
 
 CREATE OR REPLACE FUNCTION post_insert(post_author    CITEXT, post_created TIMESTAMPTZ, post_forum_id INTEGER,
-                                       post_id        INTEGER, post_message TEXT, post_parent INTEGER,
+                                       post_id        INTEGER, post_message CITEXT, post_parent INTEGER,
                                        post_thread_id INTEGER)
   RETURNS VOID AS '
 DECLARE

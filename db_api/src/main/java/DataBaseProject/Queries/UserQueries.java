@@ -8,19 +8,21 @@ public class UserQueries {
     }
 
     public static String findUserQuery() {
-        return "SELECT * FROM users WHERE nickname = ? OR email = ?";
+        final StringBuilder query = new StringBuilder(LowerQueries.find_By_Query("*", "users", "nickname"));
+        query.append(" OR a.email = ?");
+        return query.toString();
     }
 
     public static String findUserIdQuery() {
-        return "SELECT id FROM users WHERE nickname = ?";
+        return LowerQueries.find_By_Query("id", "users", "nickname");
     }
 
     public static String countUsersQuery() {
-        return "SELECT COUNT(*) FROM users";
+        return LowerQueries.count_Query("users");
     }
 
     public static String clearTableQuery() {
-        return "DELETE FROM users";
+        return LowerQueries.clearTable_Query("users");
     }
 
     public static String updateQuery(String about, String email, String fullname) {

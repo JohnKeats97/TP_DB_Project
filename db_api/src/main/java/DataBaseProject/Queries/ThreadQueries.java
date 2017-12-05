@@ -4,13 +4,13 @@ package DataBaseProject.Queries;
 public class ThreadQueries {
 
     public static String getForumIdQuery() {
-        final StringBuilder query = new StringBuilder("SELECT forums.id FROM forums ");
-        query.append("JOIN threads ON threads.forum_id = forums.id AND threads.id = ?"); //  поменять местами ??
+        final StringBuilder query = new StringBuilder("SELECT f.id FROM forums AS f ");
+        query.append("JOIN threads AS t ON t.id = ? AND t.forum_id = f.id"); //  поменять местами ??
         return query.toString();
     }
 
     public static String getThreadId() {
-        return "SELECT id FROM threads WHERE slug = ?";
+        return LowerQueries.find_By_Query("id", "threads", "slug");
     }
 
     public static String updateForumsPostsCount() {
@@ -21,21 +21,22 @@ public class ThreadQueries {
         final StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, t.created, f.slug AS f_slug, t.id, t.message, t.slug AS t_slug, t.title, t.votes ");
         // медленно
-        query.append("FROM users u ");
-        query.append("  JOIN forum_users fu ON u.id = fu.user_id");
-        query.append("  JOIN forums f ON fu.forum_id = f.id");
-        query.append("  JOIN threads t ON u.id = t.user_id AND t.forum_id = f.id AND ");
-        String id_slug = (slug_or_id.matches("\\d+") ? "t.id = ?" : "t.slug = ?");
+        query.append("FROM users AS u ");
+        query.append("  JOIN forum_users AS fu ON u.id = fu.user_id");
+        query.append("  JOIN forums AS f ON fu.forum_id = f.id");
+        query.append("  JOIN threads AS t ON "); // тут
+        String id_slug = (slug_or_id.matches("\\d+") ? "t.id = ? " : "t.slug = ? ");
         query.append(id_slug);
+        query.append("AND u.id = t.user_id AND t.forum_id = f.id "); // это было
         return query.toString();
     }
 
     public static String countThreadsQuery() {
-        return "SELECT COUNT(*) FROM threads";
+        return LowerQueries.count_Query("threads");
     }
 
     public static String clearTableQuery() {
-        return "DELETE FROM threads";
+        return LowerQueries.clearTable_Query("threads");
     }
 
     public static String thread_insertQuery() {
