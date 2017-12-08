@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    private final UserFunctions userFunctions;
+    private UserFunctions userFunctions;
 
     @Autowired
     public UserService(JdbcTemplate jdbcTemplate) {
@@ -35,7 +35,7 @@ public class UserService {
     }
 
     public ResponseEntity<Object> viewProfileService (String nickname) {
-        final UserModel user;
+        UserModel user;
         try {
             user = userFunctions.findSingleByNickOrMail(nickname, null);
         } catch (DataAccessException ex) {
@@ -55,5 +55,4 @@ public class UserService {
         }
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
-
 }

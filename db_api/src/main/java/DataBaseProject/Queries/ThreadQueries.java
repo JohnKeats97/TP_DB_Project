@@ -4,8 +4,8 @@ package DataBaseProject.Queries;
 public class ThreadQueries {
 
     public static String getForumIdQuery() {
-        final StringBuilder query = new StringBuilder("SELECT f.id FROM forums AS f ");
-        query.append("JOIN threads AS t ON t.id = ? AND t.forum_id = f.id"); //  поменять местами ??
+        StringBuilder query = new StringBuilder("SELECT f.id FROM forums AS f ");
+        query.append("JOIN threads AS t ON t.id = ? AND t.forum_id = f.id");
         return query.toString();
     }
 
@@ -18,16 +18,16 @@ public class ThreadQueries {
     }
 
     public static String getThreadQuery(final String slug_or_id) {
-        final StringBuilder query = new StringBuilder();
+        StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, t.created, f.slug AS f_slug, t.id, t.message, t.slug AS t_slug, t.title, t.votes ");
         // медленно
-        query.append("FROM users AS u ");
-        query.append("  JOIN forum_users AS fu ON u.id = fu.user_id");
-        query.append("  JOIN forums AS f ON fu.forum_id = f.id");
-        query.append("  JOIN threads AS t ON "); // тут
+        query.append("FROM forums AS f "); // user
+        query.append("  JOIN forum_users AS fu ON fu.forum_id = f.id");
+        query.append("  JOIN users AS u ON u.id = fu.user_id"); // forum
+        query.append("  JOIN threads AS t ON ");
         String id_slug = (slug_or_id.matches("\\d+") ? "t.id = ? " : "t.slug = ? ");
         query.append(id_slug);
-        query.append("AND u.id = t.user_id AND t.forum_id = f.id "); // это было
+        query.append("AND u.id = t.user_id AND t.forum_id = f.id ");
         return query.toString();
     }
 
@@ -44,7 +44,7 @@ public class ThreadQueries {
     }
 
     public static String updateQuery(String message, String title, String slug_or_id) {
-        final StringBuilder query = new StringBuilder("UPDATE threads SET");
+        StringBuilder query = new StringBuilder("UPDATE threads SET");
         if (message != null) {
             query.append(" message = ?,");
         }
@@ -58,7 +58,7 @@ public class ThreadQueries {
     }
 
     public static String updateVotesQuery (String userId, String threadId, Integer voiceView) {
-        final StringBuilder query = new StringBuilder("SELECT update_or_insert_votes(");
+        StringBuilder query = new StringBuilder("SELECT update_or_insert_votes(");
         query.append(userId);
         query.append(", ");
         query.append(threadId);

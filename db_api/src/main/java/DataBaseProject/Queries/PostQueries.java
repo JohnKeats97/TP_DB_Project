@@ -3,24 +3,16 @@ package DataBaseProject.Queries;
 
 public class PostQueries {
 
-    public static String createPostsQuery() {
-        final StringBuilder query = new StringBuilder();
-        query.append("INSERT INTO posts (user_id, created, forum_id, id, message, parent, thread_id, path) VALUES(");
-        query.append("(SELECT u.id FROM users AS u WHERE u.nickname = ?), ?, ?, ?, ?, ?, ?, ");
-        query.append("array_append((SELECT p.path FROM posts AS p WHERE p.id = ?), ?))");
-        return query.toString();
-    }
-
     public static String getPostQuery() {
-        final StringBuilder query = new StringBuilder();
+        StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, p.created, f.slug, p.id, p.is_edited, p.message, p.parent, p.thread_id ");
         query.append("FROM users AS u");
-        query.append("  JOIN posts AS p ON p.id = ? AND p.user_id = u.id  "); // поменять местами??
+        query.append("  JOIN posts AS p ON p.id = ? AND p.user_id = u.id  ");
         query.append("  JOIN forums AS f ON p.forum_id = f.id  ");
         return query.toString();
     }
 
-    public static String getPostsFlat(final Integer limit, final Integer since, final Boolean desc ) {
+    public static String getPostsFlat(Integer limit, Integer since, Boolean desc ) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, p.created, f.slug, p.id, p.is_edited, p.message, p.parent, p.thread_id ");
         query.append("FROM users AS u JOIN posts p ON u.id = p.user_id ");
@@ -38,7 +30,7 @@ public class PostQueries {
         return query.toString();
     }
 // AS
-    public static String getPostsTree(final Integer limit, final Integer since, final Boolean desc ) {
+    public static String getPostsTree(Integer limit, Integer since, Boolean desc ) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, p.created, f.slug, p.id, p.is_edited, p.message, p.parent, p.thread_id ");
         query.append("FROM users AS u JOIN posts p ON u.id = p.user_id ");
@@ -56,7 +48,7 @@ public class PostQueries {
         return query.toString();
     }
 
-    public static String getPostsParentTree(final Integer limit, final Integer since, final Boolean desc ) {
+    public static String getPostsParentTree(Integer limit, Integer since, Boolean desc ) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, p.created, f.slug, p.id, p.is_edited, p.message, p.parent, p.thread_id ");
         query.append("FROM users AS u JOIN posts p ON (u.id = p.user_id) ");

@@ -15,11 +15,11 @@ import java.util.List;
 @RequestMapping(value = "api")
 public class Routers {
 
-    private final ForumService forumSer;
-    private final PostService postSer;
-    private final ServiceService serviceSer;
-    private final ThreadService threadSer;
-    private final UserService userSer;
+    private ForumService forumSer;
+    private PostService postSer;
+    private ServiceService serviceSer;
+    private ThreadService threadSer;
+    private UserService userSer;
 
     @Autowired
     public Routers(ForumService forumService, PostService postService, ServiceService serviceService,
@@ -37,7 +37,7 @@ public class Routers {
      */
     @RequestMapping(value = "/forum/create", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> create_forum(@RequestBody final ForumModel forum) {
+    public ResponseEntity<Object> create_forum(@RequestBody ForumModel forum) {
 
         return forumSer.create_forumService(forum);
     }
@@ -45,13 +45,13 @@ public class Routers {
     @RequestMapping(value = "/forum/{slug}/create", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> create_thread(@RequestBody ThreadModel thread,
-                                             @PathVariable(value = "slug") final String slug) {
+                                             @PathVariable(value = "slug") String slug) {
 
         return forumSer.create_threadService(thread, slug);
     }
 
     @RequestMapping(value = "/forum/{slug}/details", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> view_forum_info(@PathVariable("slug") final String slug) {
+    public ResponseEntity<Object> view_forum_info(@PathVariable("slug") String slug) {
 
         return forumSer.view_forum_infoService(slug);
     }
@@ -59,10 +59,10 @@ public class Routers {
     @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/forum/{slug}/threads", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> get_forum_threads(
-            @RequestParam(value = "limit", required = false) final Integer limit,
-            @RequestParam(value = "since", required = false) final String since,
-            @RequestParam(value = "desc", required = false) final Boolean desc,
-            @PathVariable("slug") final String slug) {
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "since", required = false) String since,
+            @RequestParam(value = "desc", required = false) Boolean desc,
+            @PathVariable("slug") String slug) {
 
         return forumSer.get_forum_threadsService(limit, since, desc, slug);
     }
@@ -70,10 +70,10 @@ public class Routers {
     @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/forum/{slug}/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> get_forum_users(
-            @RequestParam(value = "limit", required = false) final Integer limit,
-            @RequestParam(value = "since", required = false) final String since,
-            @RequestParam(value = "desc", required = false) final Boolean desc,
-            @PathVariable("slug") final String slug) {
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "since", required = false) String since,
+            @RequestParam(value = "desc", required = false) Boolean desc,
+            @PathVariable("slug") String slug) {
 
         return forumSer.get_forum_usersService(limit, since, desc, slug);
     }
@@ -85,14 +85,14 @@ public class Routers {
      */
     @RequestMapping(value = "/post/{id}/details", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> get_post_detailedGet(
-            @RequestParam(value = "related", required = false) String[] related, @PathVariable("id") final Integer id) {
+            @RequestParam(value = "related", required = false) String[] related, @PathVariable("id") Integer id) {
 
         return postSer.get_post_detailedGetService(related, id);
     }
 
     @RequestMapping(value = "/post/{id}/details", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> get_post_detailedPost(@RequestBody PostModel post, @PathVariable("id") final Integer id) {
+    public ResponseEntity<Object> get_post_detailedPost(@RequestBody PostModel post, @PathVariable("id") Integer id) {
 
         return postSer.get_post_detailedPostService(post, id);
     }
@@ -119,13 +119,13 @@ public class Routers {
     @RequestMapping(value = "/thread/{slug_or_id}/create", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> create_posts(@RequestBody List<PostModel> posts,
-                                              @PathVariable(value = "slug_or_id") final String slug_or_id) {
+                                              @PathVariable(value = "slug_or_id") String slug_or_id) {
 
         return threadSer.create_postsService(posts, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/details", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> view_threadGet(@PathVariable(value = "slug_or_id") final String slug_or_id) {
+    public ResponseEntity<Object> view_threadGet(@PathVariable(value = "slug_or_id") String slug_or_id) {
 
         return threadSer.view_threadGetService(slug_or_id);
     }
@@ -133,26 +133,26 @@ public class Routers {
     @RequestMapping(value = "/thread/{slug_or_id}/details", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> view_threadPost(@RequestBody ThreadModel thread,
-                                               @PathVariable(value = "slug_or_id") final String slug_or_id) {
+                                               @PathVariable(value = "slug_or_id") String slug_or_id) {
 
         return threadSer.view_threadPostService(thread, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/vote", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> vote(@RequestBody final VoteModel vote,
-                                                @PathVariable("slug_or_id") final String slug_or_id) {
+    public ResponseEntity<Object> vote(@RequestBody  VoteModel vote,
+                                                @PathVariable("slug_or_id") String slug_or_id) {
 
         return threadSer.voteService(vote, slug_or_id);
     }
 
     @RequestMapping(value = "/thread/{slug_or_id}/posts", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> get_posts_sorted(@PathVariable(value = "slug_or_id") final String slug_or_id,
-                                         @RequestParam(value = "limit", required = false) final Integer limit,
-                                         @RequestParam(value = "since", required = false) final Integer since,
-                                         @RequestParam(value = "sort", required = false) final String sort,
-                                         @RequestParam(value = "desc", required = false) final Boolean desc) {
+    public ResponseEntity<Object> get_posts_sorted(@PathVariable(value = "slug_or_id") String slug_or_id,
+                                         @RequestParam(value = "limit", required = false) Integer limit,
+                                         @RequestParam(value = "since", required = false) Integer since,
+                                         @RequestParam(value = "sort", required = false) String sort,
+                                         @RequestParam(value = "desc", required = false) Boolean desc) {
 
         return threadSer.get_posts_sortedService(slug_or_id, limit, since, sort, desc);
     }

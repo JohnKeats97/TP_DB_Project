@@ -8,26 +8,26 @@ public class ForumQueries {
     }
 
     public static String getForumQuery() {
-        final StringBuilder query = new StringBuilder("SELECT f.posts, f.slug, f.threads, f.title, u.nickname ");
+        StringBuilder query = new StringBuilder("SELECT f.posts, f.slug, f.threads, f.title, u.nickname ");
         query.append("FROM users AS u ");
-        query.append("  JOIN forums AS f ON f.slug = ? AND u.id = f.user_id ");  // поменять местами ??
+        query.append("  JOIN forums AS f ON f.slug = ? AND u.id = f.user_id ");
         return query.toString();
     }
 
 
     public static String getThreadsByForumQuery() {
-        final StringBuilder query = new StringBuilder();
+        StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, t.created, f.slug as f_slug, t.id, t.message, t.slug as t_slug, t.title, t.votes ");
         // медленно
         query.append("FROM users AS u ");
         query.append("  JOIN forum_users AS fu ON u.id = fu.user_id");
-        query.append("  JOIN forums AS f ON f.slug = ? AND fu.forum_id = f.id"); // поменять местами??
+        query.append("  JOIN forums AS f ON f.slug = ? AND fu.forum_id = f.id");
         query.append("  JOIN threads AS t ON u.id = t.user_id AND t.forum_id = f.id ");
         return query.toString();
     }
 
     public static String findAllThreadsQuery (String since, Boolean desc) {
-        final StringBuilder query = new StringBuilder(ForumQueries.getThreadsByForumQuery());
+        StringBuilder query = new StringBuilder(ForumQueries.getThreadsByForumQuery());
         if (since != null) {
             query.append(" AND t.created ");
             String sign = (desc == Boolean.TRUE ? "<= ?" : ">= ?");
@@ -41,9 +41,9 @@ public class ForumQueries {
     }
 
     public static String getUsersByForumQuery() {
-        final StringBuilder query = new StringBuilder("SELECT u.about, u.email, u.fullname, u.nickname ");
+        StringBuilder query = new StringBuilder("SELECT u.about, u.email, u.fullname, u.nickname ");
         query.append("FROM users AS u ");
-//        query.append("JOIN forum_users fu ON fu.forum_id = ? AND u.id = fu.user_id"); // поменять местами
+//        query.append("JOIN forum_users fu ON fu.forum_id = ? AND u.id = fu.user_id");
         query.append("WHERE u.id IN ("); //
         query.append("  SELECT user_id "); //
         query.append("  FROM forum_users "); //
@@ -53,7 +53,7 @@ public class ForumQueries {
     }
 
     public static String findAllUsersQuery(String since, Boolean desc){
-        final StringBuilder query = new StringBuilder(ForumQueries.getUsersByForumQuery());
+        StringBuilder query = new StringBuilder(ForumQueries.getUsersByForumQuery());
         if (since != null) {
             query.append(" AND u.nickname ");
             query.append(desc == Boolean.TRUE ? "< ?" : "> ?");

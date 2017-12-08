@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceService {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final PostFunctions postFunctions;
-    private final ForumFunctions forumFunctions;
-    private final ThreadFunctions threadFunctions;
-    private final UserFunctions userFunctions;
+    private JdbcTemplate jdbcTemplate;
+    private PostFunctions postFunctions;
+    private ForumFunctions forumFunctions;
+    private ThreadFunctions threadFunctions;
+    private UserFunctions userFunctions;
 
     @Autowired
     public ServiceService(JdbcTemplate jdbcTemplate) {
@@ -30,10 +30,10 @@ public class ServiceService {
     }
 
     public ResponseEntity<Object> statusService () {
-        final Integer forumsCount = forumFunctions.count();
-        final Integer postsCount = postFunctions.count();
-        final Integer threadsCount = threadFunctions.count();
-        final Integer usersCount = userFunctions.count();
+        Integer forumsCount = forumFunctions.count();
+        Integer postsCount = postFunctions.count();
+        Integer threadsCount = threadFunctions.count();
+        Integer usersCount = userFunctions.count();
         return ResponseEntity.status(HttpStatus.OK).body(new StatusReturnModel(forumsCount, postsCount, threadsCount, usersCount));
     }
 

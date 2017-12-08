@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PostService {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final PostFunctions postFunctions;
+    private JdbcTemplate jdbcTemplate;
+    private PostFunctions postFunctions;
 
     @Autowired
     public PostService(JdbcTemplate jdbcTemplate) {
@@ -22,8 +22,8 @@ public class PostService {
         this.postFunctions = new PostFunctions(jdbcTemplate);
     }
 
-    public ResponseEntity<Object> get_post_detailedGetService (String[] related, final Integer id) {
-        final PostDetailedModel post;
+    public ResponseEntity<Object> get_post_detailedGetService (String[] related, Integer id) {
+        PostDetailedModel post;
         try {
             post = postFunctions.detailedView(id, related);
         } catch (DataAccessException ex) {

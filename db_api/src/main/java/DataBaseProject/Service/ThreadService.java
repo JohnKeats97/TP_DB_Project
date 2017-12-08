@@ -20,9 +20,9 @@ import java.util.List;
 @Service
 public class ThreadService {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final PostFunctions postFunctions;
-    private final ThreadFunctions threadFunctions;
+    private JdbcTemplate jdbcTemplate;
+    private PostFunctions postFunctions;
+    private ThreadFunctions threadFunctions;
 
     @Autowired
     public ThreadService(JdbcTemplate jdbcTemplate) {
@@ -63,7 +63,7 @@ public class ThreadService {
     }
 
     public ResponseEntity<Object> view_threadGetService (String slug_or_id) {
-        final ThreadModel thread;
+        ThreadModel thread;
         try {
             thread = threadFunctions.findByIdOrSlug(slug_or_id);
         } catch (DataAccessException ex) {
@@ -85,7 +85,7 @@ public class ThreadService {
     }
 
     public ResponseEntity<Object> voteService (VoteModel vote, String slug_or_id) {
-        final ThreadModel thread;
+        ThreadModel thread;
         try {
             thread = threadFunctions.updateVotes(vote, slug_or_id);
         } catch (DuplicateKeyException ex) {
@@ -99,7 +99,7 @@ public class ThreadService {
     public ResponseEntity<Object> get_posts_sortedService (String slug_or_id, Integer limit, Integer since, String sort, Boolean desc) {
         try {
             ThreadModel thread = threadFunctions.findByIdOrSlug(slug_or_id);
-            List<PostModel> result = postFunctions.sort(thread, slug_or_id, limit, since, sort, desc);
+            List<PostModel> result = postFunctions.sort(thread, limit, since, sort, desc);
             return ResponseEntity.status(HttpStatus.OK).body(result);
         } catch (DataAccessException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");

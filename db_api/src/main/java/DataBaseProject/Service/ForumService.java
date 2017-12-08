@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class ForumService {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final ForumFunctions forumFunctions;
-    private final ThreadFunctions threadFunctions;
+    private JdbcTemplate jdbcTemplate;
+    private ForumFunctions forumFunctions;
+    private ThreadFunctions threadFunctions;
 
     @Autowired
     public ForumService(JdbcTemplate jdbcTemplate) {
@@ -40,7 +40,7 @@ public class ForumService {
     }
 
     public ResponseEntity<Object> create_threadService(ThreadModel thread, String slug) {
-        final String threadSlug = thread.getSlug();
+        String threadSlug = thread.getSlug();
         try {
             thread = threadFunctions.create(thread.getAuthor(), thread.getCreated(), slug,
                     thread.getMessage(), thread.getSlug(), thread.getTitle());
@@ -53,7 +53,7 @@ public class ForumService {
     }
 
     public ResponseEntity<Object> view_forum_infoService(String slug) {
-        final ForumModel forum;
+        ForumModel forum;
         try {
             forum = forumFunctions.findBySlug(slug);
         } catch (DataAccessException ex) {
@@ -64,7 +64,7 @@ public class ForumService {
 
     public ResponseEntity<Object> get_forum_threadsService(Integer limit, String since, Boolean desc, String slug) {
         try {
-            final ForumModel forum = forumFunctions.findBySlug(slug);
+            ForumModel forum = forumFunctions.findBySlug(slug);
         } catch (DataAccessException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
         }
@@ -73,7 +73,7 @@ public class ForumService {
 
     public ResponseEntity<Object> get_forum_usersService(Integer limit, String since, Boolean desc, String slug) {
         try {
-            final ForumModel forum = forumFunctions.findBySlug(slug);
+            ForumModel forum = forumFunctions.findBySlug(slug);
         } catch (DataAccessException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
         }

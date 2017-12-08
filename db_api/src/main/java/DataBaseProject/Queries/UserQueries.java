@@ -8,7 +8,7 @@ public class UserQueries {
     }
 
     public static String findUserQuery() {
-        final StringBuilder query = new StringBuilder(LowerQueries.find_By_Query("*", "users", "nickname"));
+        StringBuilder query = new StringBuilder(LowerQueries.find_By_Query("*", "users", "nickname"));
         query.append(" OR a.email = ?");
         return query.toString();
     }
@@ -26,7 +26,7 @@ public class UserQueries {
     }
 
     public static String updateQuery(String about, String email, String fullname) {
-        final StringBuilder query = new StringBuilder("UPDATE users SET");
+        StringBuilder query = new StringBuilder("UPDATE users SET");
         if (about != null) {
             query.append(" about = ?,");
         }

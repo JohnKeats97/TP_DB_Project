@@ -5,8 +5,11 @@ import DataBaseProject.Queries.PostQueries;
 import DataBaseProject.Queries.ThreadQueries;
 import DataBaseProject.Queries.UserQueries;
 import DataBaseProject.ResponseModels.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
@@ -16,13 +19,42 @@ import java.util.List;
 import java.util.TimeZone;
 
 @Service
-public class PostFunctions extends LowerFunctions {
+public class PostFunctions extends JdbcDaoSupport {
 
+    private RowMapper<PostModel> readPost;
+    private RowMapper<UserModel> readUser;
+    private RowMapper<ForumModel> readForum;
+    private RowMapper<ThreadModel> readThread;
+
+    @Autowired
     public PostFunctions(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
+        setJdbcTemplate(jdbcTemplate);
+        readPost = (rs, rowNum) -> {
+            Timestamp timestamp = rs.getTimestamp("created");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return new PostModel(rs.getString("nickname"), dateFormat.format(timestamp),
+                    rs.getString("slug"), rs.getInt("id"), rs.getBoolean("is_edited"),
+                    rs.getString("message"), rs.getInt("parent"), rs.getInt("thread_id"));
+        };
+        readUser = (rs, rowNum) ->
+                new UserModel(rs.getString("about"), rs.getString("email"),
+                        rs.getString("fullname"), rs.getString("nickname"));
+        readForum = (rs, rowNum) ->
+                new ForumModel(rs.getInt("posts"), rs.getString("slug"),
+                        rs.getInt("threads"), rs.getString("title"), rs.getString("nickname"));
+        readThread = (rs, rowNum) -> {
+            Timestamp timestamp = rs.getTimestamp("created");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return new ThreadModel(rs.getString("nickname"), dateFormat.format(timestamp.getTime()),
+                    rs.getString("f_slug"), rs.getInt("id"), rs.getString("message"),
+                    rs.getString("t_slug"), rs.getString("title"), rs.getInt("votes"));
+        };
     }
 
-    public void create(final List<PostModel> posts, final String slug_or_id) {
+
+    public void create(List<PostModel> posts, String slug_or_id) {
         final Integer threadId = slug_or_id.matches("\\d+") ? Integer.valueOf(slug_or_id) :
                 getJdbcTemplate().queryForObject(ThreadQueries.getThreadId(), Integer.class, slug_or_id);
         final Integer forumId = getJdbcTemplate().queryForObject(ThreadQueries.getForumIdQuery(), Integer.class, threadId);
@@ -60,7 +92,7 @@ public class PostFunctions extends LowerFunctions {
         getJdbcTemplate().update(ThreadQueries.updateForumsPostsCount(), posts.size(), forumId);
     }
 
-    public PostModel update(final String message, final Integer id) {
+    public PostModel update(String message, Integer id) {
         final PostModel post = findById(id);
         getJdbcTemplate().update(PostQueries.updatePost(message.equals(post.getMessage())), message, id);
         if (!message.equals(post.getMessage())) {
@@ -70,11 +102,11 @@ public class PostFunctions extends LowerFunctions {
         return post;
     }
 
-    public final PostModel findById(final Integer id) {
+    public final PostModel findById(Integer id) {
         return getJdbcTemplate().queryForObject(PostQueries.getPostQuery(), new Object[]{id}, readPost);
     }
 
-    public PostDetailedModel detailedView(final Integer id, final String[] related) {
+    public PostDetailedModel detailedView(Integer id, String[] related) {
         final PostModel post = findById(id);
         UserModel user = null;
         ForumModel forum = null;
@@ -99,7 +131,7 @@ public class PostFunctions extends LowerFunctions {
         return new PostDetailedModel(user, forum, post, thread);
     }
 
-    public List<PostModel> sort(final ThreadModel thread, final String slug_or_id, final Integer limit, final Integer since, final String sort, final Boolean desc) {
+    public List<PostModel> sort(ThreadModel thread, Integer limit, Integer since, String sort, Boolean desc) {
         List<Object> arguments = new ArrayList<>();
         arguments.add(thread.getId());
         if (since != null) {
