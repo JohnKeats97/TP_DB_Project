@@ -14,45 +14,54 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private UserFunctions userFunctions;
+    private Object error;
 
     @Autowired
     public UserService(JdbcTemplate jdbcTemplate) {
         this.userFunctions = new UserFunctions(jdbcTemplate);
+        this.error = "{\"message\": \"error\"}";
     }
 
 
     public ResponseEntity<Object> create_userService (UserModel user, String nickname) {
+        HttpStatus status = HttpStatus.CREATED;
+        Object body = user;
         try {
             userFunctions.create(user.getAbout(), user.getEmail(), user.getFullname(), nickname);
         } catch (DuplicateKeyException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(userFunctions.findManyByNickOrMail(nickname, user.getEmail()));
+            status = HttpStatus.CONFLICT;
+            body = userFunctions.findManyByNickOrMail(nickname, user.getEmail());
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            status = HttpStatus.NOT_FOUND;
+            body = error;
         }
         user.setNickname(nickname);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return ResponseEntity.status(status).body(body);
     }
 
     public ResponseEntity<Object> viewProfileService (String nickname) {
-        UserModel user;
+        HttpStatus status = HttpStatus.OK;
+        Object body;
         try {
-            user = userFunctions.findSingleByNickOrMail(nickname, null);
+            body = userFunctions.findSingleByNickOrMail(nickname, null);
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return ResponseEntity.status(status).body(body);
     }
 
     public ResponseEntity<Object> modify_profileService (UserModel user, String nickname) {
+        HttpStatus status = HttpStatus.OK;
+        Object body = error;
         try {
             userFunctions.update(user.getAbout(), user.getEmail(), user.getFullname(), nickname);
-            user = userFunctions.findSingleByNickOrMail(nickname, user.getEmail());
+            body = userFunctions.findSingleByNickOrMail(nickname, user.getEmail());
         } catch (DuplicateKeyException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"message\": \"error\"}");
+            status = HttpStatus.CONFLICT;
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return ResponseEntity.status(status).body(body);
     }
 }

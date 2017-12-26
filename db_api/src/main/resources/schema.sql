@@ -1,11 +1,11 @@
 CREATE EXTENSION IF NOT EXISTS CITEXT;
 
-DROP TABLE IF EXISTS forum_users CASCADE;
-DROP TABLE IF EXISTS forums CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS threads CASCADE;
-DROP TABLE IF EXISTS posts CASCADE;
-DROP TABLE IF EXISTS votes CASCADE;
+DROP TABLE IF EXISTS forum_users;
+DROP TABLE IF EXISTS forums;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS threads;
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS votes;
 
 DROP INDEX IF EXISTS forums_user_id;
 DROP INDEX IF EXISTS forum_users_user_id;
@@ -36,59 +36,72 @@ DROP FUNCTION IF EXISTS update_or_insert_votes( INTEGER, INTEGER, INTEGER );
 
 
 CREATE TABLE IF NOT EXISTS users (
-  id       SERIAL PRIMARY KEY,
-  about    CITEXT DEFAULT NULL,
-  email    CITEXT UNIQUE,
-  fullname CITEXT DEFAULT NULL,
-  nickname CITEXT COLLATE ucs_basic UNIQUE
+  id       SERIAL       PRIMARY KEY,
+  about    CITEXT       DEFAULT NULL,
+  email    CITEXT,
+  fullname CITEXT       DEFAULT NULL,
+  nickname CITEXT       COLLATE ucs_basic
 );
+
+ALTER TABLE users ADD
+  CONSTRAINT users_email UNIQUE (email);
+
+ALTER TABLE users ADD
+  CONSTRAINT users_nickname UNIQUE (nickname);
+
 
 CREATE TABLE IF NOT EXISTS forums (
-  id      SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-  user_autor   CITEXT                                        DEFAULT NULL,
-  posts   INTEGER DEFAULT 0,
-  threads INTEGER DEFAULT 0,
-  slug    CITEXT UNIQUE                                   NOT NULL,
-  title   CITEXT                                            NOT NULL
+  id          SERIAL       PRIMARY KEY,
+  user_id     INTEGER      NOT NULL,
+  user_autor  CITEXT       DEFAULT NULL,
+  posts       INTEGER      DEFAULT 0,
+  threads     INTEGER      DEFAULT 0,
+  slug        CITEXT       NOT NULL,
+  title       CITEXT       NOT NULL
 );
 
+ALTER TABLE forums ADD
+  CONSTRAINT forums_slug UNIQUE (slug);
+
 CREATE TABLE IF NOT EXISTS forum_users (
-  user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE,
-  forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE
+  user_id  INTEGER,
+  forum_id INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS threads (
-  id       SERIAL PRIMARY KEY,
-  user_id  INTEGER REFERENCES users (id) ON DELETE CASCADE  NOT NULL,
-  autor    CITEXT                                        DEFAULT NULL,
-  forum_id INTEGER REFERENCES forums (id) ON DELETE CASCADE NOT NULL,
-  created  TIMESTAMPTZ DEFAULT NOW(),
-  message  CITEXT        DEFAULT NULL,
-  slug     CITEXT UNIQUE,
-  title    CITEXT                                             NOT NULL,
-  votes    INTEGER     DEFAULT 0
+  id       SERIAL       PRIMARY KEY,
+  user_id  INTEGER      NOT NULL,
+  autor    CITEXT       DEFAULT NULL,
+  forum_id INTEGER      NOT NULL,
+  created  TIMESTAMPTZ  DEFAULT NOW(),
+  message  CITEXT       DEFAULT NULL,
+  slug     CITEXT,
+  title    CITEXT       NOT NULL,
+  votes    INTEGER      DEFAULT 0
 );
 
+ALTER TABLE threads ADD
+  CONSTRAINT threads_slug UNIQUE (slug);
+
 CREATE TABLE IF NOT EXISTS posts (
-  id        SERIAL PRIMARY KEY,
-  user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE   NOT NULL,
-  autor     CITEXT                                        DEFAULT NULL,
-  forum_id  INTEGER REFERENCES forums (id) ON DELETE CASCADE  NOT NULL,
-  thread_id INTEGER REFERENCES threads (id) ON DELETE CASCADE NOT NULL,
+  id        SERIAL      PRIMARY KEY,
+  user_id   INTEGER     NOT NULL,
+  autor     CITEXT      DEFAULT NULL,
+  forum_id  INTEGER     NOT NULL,
+  thread_id INTEGER     NOT NULL,
   created   TIMESTAMPTZ DEFAULT NOW(),
   is_edited BOOLEAN     DEFAULT FALSE,
-  message   CITEXT        DEFAULT NULL,
+  message   CITEXT      DEFAULT NULL,
   parent    INTEGER     DEFAULT 0,
-  path      INTEGER []                                        NOT NULL,
+  path      INTEGER []  NOT NULL,
   root_id   INTEGER
 );
 
 
 CREATE TABLE IF NOT EXISTS votes (
-  user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE,
-  thread_id INTEGER REFERENCES threads (id) ON DELETE CASCADE,
-  voice     INTEGER DEFAULT 0
+  user_id   INTEGER,
+  thread_id INTEGER,
+  voice     INTEGER     DEFAULT 0
 );
 
 

@@ -11,10 +11,10 @@ public class StatusReturnModel {
     private Integer user;
 
     @JsonCreator
-    public StatusReturnModel(@JsonProperty("forum") final Integer forum,
-                             @JsonProperty("post") final Integer post,
-                             @JsonProperty("thread") final Integer thread,
-                             @JsonProperty("user") final Integer user) {
+    public StatusReturnModel(@JsonProperty("forum") Integer forum,
+                             @JsonProperty("post") Integer post,
+                             @JsonProperty("thread") Integer thread,
+                             @JsonProperty("user") Integer user) {
         this.forum = forum;
         this.post = post;
         this.thread = thread;

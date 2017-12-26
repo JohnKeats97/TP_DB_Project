@@ -16,67 +16,88 @@ import org.springframework.stereotype.Service;
 @Service
 public class ForumService {
 
-    private JdbcTemplate jdbcTemplate;
     private ForumFunctions forumFunctions;
     private ThreadFunctions threadFunctions;
+    private Object error;
 
     @Autowired
     public ForumService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
         this.forumFunctions = new ForumFunctions(jdbcTemplate);
         this.threadFunctions = new ThreadFunctions(jdbcTemplate);
+        this.error = "{\"message\": \"error\"}";
     }
 
     public ResponseEntity<Object> create_forumService(ForumModel forum) {
-
+        HttpStatus status = HttpStatus.CREATED;
+        Object body;
         try {
             forumFunctions.create(forum.getUser(), forum.getSlug(), forum.getTitle());
+            body = forumFunctions.findBySlug(forum.getSlug());
         } catch (DuplicateKeyException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(forumFunctions.findBySlug(forum.getSlug()));
+            status = HttpStatus.CONFLICT;
+            body = forumFunctions.findBySlug(forum.getSlug());
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(forumFunctions.findBySlug(forum.getSlug()));
+        return ResponseEntity.status(status).body(body);
     }
 
     public ResponseEntity<Object> create_threadService(ThreadModel thread, String slug) {
         String threadSlug = thread.getSlug();
+        HttpStatus status = HttpStatus.CREATED;
+        Object body;
         try {
             thread = threadFunctions.create(thread.getAuthor(), thread.getCreated(), slug,
                     thread.getMessage(), thread.getSlug(), thread.getTitle());
+            body = thread;
         } catch (DuplicateKeyException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(threadFunctions.findByIdOrSlug(threadSlug));
+            status = HttpStatus.CONFLICT;
+            body = threadFunctions.findByIdOrSlug(threadSlug);
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(thread);
+        return ResponseEntity.status(status).body(body);
     }
 
     public ResponseEntity<Object> view_forum_infoService(String slug) {
-        ForumModel forum;
+        HttpStatus status = HttpStatus.OK;
+        Object body;
         try {
-            forum = forumFunctions.findBySlug(slug);
+            // ForumModel forum = forumFunctions.findBySlug(slug);
+            // body = forum;
+            body = forumFunctions.findBySlug(slug);
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(forum);
+        return ResponseEntity.status(status).body(body);
     }
 
     public ResponseEntity<Object> get_forum_threadsService(Integer limit, String since, Boolean desc, String slug) {
+        HttpStatus status = HttpStatus.OK;
+        Object body;
         try {
-            ForumModel forum = forumFunctions.findBySlug(slug);
+            forumFunctions.findBySlug(slug);
+            body = forumFunctions.findAllThreads(slug, limit, since, desc);
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(forumFunctions.findAllThreads(slug, limit, since, desc));
+        return ResponseEntity.status(status).body(body);
     }
 
     public ResponseEntity<Object> get_forum_usersService(Integer limit, String since, Boolean desc, String slug) {
+        HttpStatus status = HttpStatus.OK;
+        Object body;
         try {
-            ForumModel forum = forumFunctions.findBySlug(slug);
+            forumFunctions.findBySlug(slug);
+            body = forumFunctions.findAllUsers(slug, limit, since, desc);
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(forumFunctions.findAllUsers(slug, limit, since, desc));
+        return ResponseEntity.status(status).body(body);
     }
 }

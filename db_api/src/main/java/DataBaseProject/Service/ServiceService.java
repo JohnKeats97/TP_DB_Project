@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceService {
 
-    private JdbcTemplate jdbcTemplate;
     private PostFunctions postFunctions;
     private ForumFunctions forumFunctions;
     private ThreadFunctions threadFunctions;
@@ -22,7 +21,6 @@ public class ServiceService {
 
     @Autowired
     public ServiceService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
         this.postFunctions = new PostFunctions(jdbcTemplate);
         this.forumFunctions = new ForumFunctions(jdbcTemplate);
         this.threadFunctions = new ThreadFunctions(jdbcTemplate);

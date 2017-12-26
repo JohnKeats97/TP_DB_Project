@@ -13,31 +13,41 @@ import org.springframework.stereotype.Service;
 @Service
 public class PostService {
 
-    private JdbcTemplate jdbcTemplate;
     private PostFunctions postFunctions;
+    private Object error;
 
     @Autowired
     public PostService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
         this.postFunctions = new PostFunctions(jdbcTemplate);
+        this.error = "{\"message\": \"error\"}";
     }
 
     public ResponseEntity<Object> get_post_detailedGetService (String[] related, Integer id) {
-        PostDetailedModel post;
+        HttpStatus status = HttpStatus.OK;
+        Object body;
         try {
-            post = postFunctions.detailedView(id, related);
+            body = postFunctions.detailedView(id, related);
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(post);
+        return ResponseEntity.status(status).body(body);
     }
 
     public ResponseEntity<Object> get_post_detailedPostService (PostModel post, Integer id) {
+        HttpStatus status = HttpStatus.OK;
+        Object body;
         try {
-            post = post.getMessage() != null ? postFunctions.update(post.getMessage(), id) : postFunctions.findById(id);
+            if(post.getMessage() != null) {
+                body = postFunctions.update(post.getMessage(), id);
+            }
+            else {
+                body = postFunctions.findById(id);
+            }
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"error\"}");
+            body = error;
+            status = HttpStatus.NOT_FOUND;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(post);
+        return ResponseEntity.status(status).body(body);
     }
 }
