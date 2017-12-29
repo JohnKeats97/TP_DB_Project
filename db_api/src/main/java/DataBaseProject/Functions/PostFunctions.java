@@ -61,7 +61,7 @@ public class PostFunctions extends JdbcDaoSupport {
         Timestamp created = new Timestamp(System.currentTimeMillis());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Integer postId = 0;
+        Integer postId;
         try (Connection connection = getJdbcTemplate().getDataSource().getConnection();
             CallableStatement callableStatement = connection.prepareCall(PostQueries.post_insertQuery())) {
             for (PostModel post : posts) {

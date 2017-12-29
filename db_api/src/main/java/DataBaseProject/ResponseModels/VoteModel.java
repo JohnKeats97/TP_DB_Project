@@ -9,25 +9,25 @@ public class VoteModel {
     private Integer voice;
 
     @JsonCreator
-    public VoteModel(@JsonProperty("nickname") final String nickname,
-                     @JsonProperty("voice") final Integer voice) {
+    public VoteModel(@JsonProperty("nickname") String nickname,
+                     @JsonProperty("voice") Integer voice) {
         this.nickname = nickname;
         this.voice = voice;
     }
 
-    public final String getNickname() {
+    public String getNickname() {
         return this.nickname;
     }
 
-    public void setNickname(final String nickname) {
+    public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    public final Integer getVoice() {
+    public Integer getVoice() {
         return this.voice;
     }
 
-    public void setVoice(final Integer voice) {
+    public void setVoice(Integer voice) {
         this.voice = voice;
     }
 }

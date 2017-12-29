@@ -15,6 +15,7 @@ import java.util.List;
 public class UserFunctions extends JdbcDaoSupport {
 
     private RowMapper<UserModel> readUser;
+    public Integer userId;
 
     @Autowired
     public UserFunctions(JdbcTemplate jdbcTemplate) {
@@ -22,11 +23,13 @@ public class UserFunctions extends JdbcDaoSupport {
         readUser = (rs, rowNum) ->
                 new UserModel(rs.getString("about"), rs.getString("email"),
                         rs.getString("fullname"), rs.getString("nickname"));
+        userId = 0;
     }
 
 
     public void create(final String about, String email, String fullname, String nickname) {
         getJdbcTemplate().update(UserQueries.createUserQuery(), about, email, fullname, nickname);
+        getJdbcTemplate().update(UserQueries.createUserInAllQuery(), userId++);
     }
 
     public void update(String about, String email, String fullname, String nickname) {

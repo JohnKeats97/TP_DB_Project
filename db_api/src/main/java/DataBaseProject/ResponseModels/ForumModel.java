@@ -25,43 +25,43 @@ public class ForumModel {
     }
 
 
-    public final Integer getPosts() {
+    public Integer getPosts() {
         return this.posts;
     }
 
-    public void setPosts(final Integer posts) {
+    public void setPosts(Integer posts) {
         this.posts = posts;
     }
 
-    public final String getSlug() {
+    public String getSlug() {
         return this.slug;
     }
 
-    public void setSlug(final String slug) {
+    public void setSlug(String slug) {
         this.slug = slug;
     }
 
-    public final Integer getThreads() {
+    public Integer getThreads() {
         return this.threads;
     }
 
-    public void setThreads(final Integer threads) {
+    public void setThreads(Integer threads) {
         this.threads = threads;
     }
 
-    public final String getTitle() {
+    public String getTitle() {
         return this.title;
     }
 
-    public void setTitle(final String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public final String getUser() {
+    public String getUser() {
         return this.user;
     }
 
-    public void setUser(final String user) {
+    public void setUser(String user) {
         this.user = user;
     }
 

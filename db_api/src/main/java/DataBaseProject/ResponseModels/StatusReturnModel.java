@@ -21,35 +21,35 @@ public class StatusReturnModel {
         this.user = user;
     }
 
-    public final Integer getForum() {
+    public Integer getForum() {
         return this.forum;
     }
 
-    public void setForum(final Integer forum) {
+    public void setForum(Integer forum) {
         this.forum = forum;
     }
 
-    public final Integer getPost() {
+    public Integer getPost() {
         return this.post;
     }
 
-    public void setPost(final Integer post) {
+    public void setPost(Integer post) {
         this.post = post;
     }
 
-    public final Integer getThread() {
+    public Integer getThread() {
         return this.thread;
     }
 
-    public void setThread(final Integer thread) {
+    public void setThread(Integer thread) {
         this.thread = thread;
     }
 
-    public final Integer getUser() {
+    public Integer getUser() {
         return this.user;
     }
 
-    public void setUser(final Integer user) {
+    public void setUser(Integer user) {
         this.user = user;
     }
 }

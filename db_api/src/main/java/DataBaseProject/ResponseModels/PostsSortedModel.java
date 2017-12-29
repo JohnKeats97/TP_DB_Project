@@ -11,25 +11,25 @@ public class PostsSortedModel {
     private String marker;
 
     @JsonCreator
-    public PostsSortedModel(@JsonProperty("marker") final String marker,
-                            @JsonProperty("posts") final List<PostModel> posts) {
+    public PostsSortedModel(@JsonProperty("marker") String marker,
+                            @JsonProperty("posts") List<PostModel> posts) {
         this.marker = marker;
         this.posts = posts;
     }
 
-    public final List<PostModel> getPosts() {
+    public List<PostModel> getPosts() {
         return this.posts;
     }
 
-    public void setPosts(final List<PostModel> posts) {
+    public void setPosts(List<PostModel> posts) {
         this.posts = posts;
     }
 
-    public final String getMarker() {
+    public String getMarker() {
         return this.marker;
     }
 
-    public void setMarker(final String marker) {
+    public void setMarker(String marker) {
         this.marker = marker;
     }
 }

@@ -15,14 +15,14 @@ public class ThreadModel {
     private Integer votes;
 
     @JsonCreator
-    public ThreadModel(@JsonProperty("author") final String author,
-                       @JsonProperty("created") final String created,
-                       @JsonProperty("forum") final String forum,
-                       @JsonProperty("id") final Integer id,
-                       @JsonProperty("message") final String message,
-                       @JsonProperty("slug") final String slug,
-                       @JsonProperty("title") final String title,
-                       @JsonProperty("votes") final Integer votes) {
+    public ThreadModel(@JsonProperty("author") String author,
+                       @JsonProperty("created") String created,
+                       @JsonProperty("forum") String forum,
+                       @JsonProperty("id") Integer id,
+                       @JsonProperty("message") String message,
+                       @JsonProperty("slug") String slug,
+                       @JsonProperty("title") String title,
+                       @JsonProperty("votes") Integer votes) {
         this.author = author;
         this.created = created;
         this.forum = forum;
@@ -33,67 +33,67 @@ public class ThreadModel {
         this.votes = votes;
     }
 
-    public final String getAuthor() {
+    public String getAuthor() {
         return this.author;
     }
 
-    public void setAuthor(final String author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
-    public final String getCreated() {
+    public String getCreated() {
         return this.created;
     }
 
-    public void setCreated(final String created) {
+    public void setCreated(String created) {
         this.created = created;
     }
 
-    public final String getForum() {
+    public String getForum() {
         return this.forum;
     }
 
-    public void setForum(final String forum) {
+    public void setForum(String forum) {
         this.forum = forum;
     }
 
-    public final Integer getId() {
+    public Integer getId() {
         return this.id;
     }
 
-    public void setId(final Integer id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public final String getMessage() {
+    public String getMessage() {
         return this.message;
     }
 
-    public void setMessage(final String message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    public final String getSlug() {
+    public String getSlug() {
         return this.slug;
     }
 
-    public void setSlug(final String slug) {
+    public void setSlug(String slug) {
         this.slug = slug;
     }
 
-    public final String getTitle() {
+    public String getTitle() {
         return this.title;
     }
 
-    public void setTitle(final String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public final Integer getVotes() {
+    public Integer getVotes() {
         return this.votes;
     }
 
-    public void setVotes(final Integer votes) {
+    public void setVotes(Integer votes) {
         this.votes = votes;
     }
 }

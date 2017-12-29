@@ -7,6 +7,10 @@ public class UserQueries {
         return "INSERT INTO users (about, email, fullname, nickname) VALUES(?, ?, ?, ?)";
     }
 
+    public static String createUserInAllQuery() {
+        return "INSERT INTO forum_users (user_id) VALUES(?)";
+    }
+
     public static String findUserQuery() {
         StringBuilder query = new StringBuilder(LowerQueries.find_By_Query("*", "users", "nickname"));
         query.append(" OR a.email = ?");

@@ -15,14 +15,14 @@ public class PostModel {
     private Integer thread;
 
     @JsonCreator
-    public PostModel(@JsonProperty("author") final String author,
-                     @JsonProperty("created") final String created,
-                     @JsonProperty("forum") final String forum,
-                     @JsonProperty("id") final Integer id,
-                     @JsonProperty("isEdited") final Boolean isEdited,
-                     @JsonProperty("message") final String message,
-                     @JsonProperty("parent") final Integer parent,
-                     @JsonProperty("thread") final Integer thread) {
+    public PostModel(@JsonProperty("author") String author,
+                     @JsonProperty("created") String created,
+                     @JsonProperty("forum") String forum,
+                     @JsonProperty("id") Integer id,
+                     @JsonProperty("isEdited") Boolean isEdited,
+                     @JsonProperty("message") String message,
+                     @JsonProperty("parent") Integer parent,
+                     @JsonProperty("thread") Integer thread) {
         this.author = author;
         this.created = created;
         this.forum = forum;
@@ -33,67 +33,67 @@ public class PostModel {
         this.thread = thread;
     }
 
-    public final String getAuthor() {
+    public String getAuthor() {
         return this.author;
     }
 
-    public void setAuthor(final String author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
-    public final String getCreated() {
+    public String getCreated() {
         return this.created;
     }
 
-    public void setCreated(final String created) {
+    public void setCreated(String created) {
         this.created = created;
     }
 
-    public final String getForum() {
+    public String getForum() {
         return this.forum;
     }
 
-    public void setForum(final String forum) {
+    public void setForum(String forum) {
         this.forum = forum;
     }
 
-    public final Integer getId() {
+    public Integer getId() {
         return this.id;
     }
 
-    public void setId(final Integer id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public final Boolean getIsEdited() {
+    public Boolean getIsEdited() {
         return this.isEdited;
     }
 
-    public void setIsEdited(final Boolean isEdited) {
+    public void setIsEdited(Boolean isEdited) {
         this.isEdited = isEdited;
     }
 
-    public final String getMessage() {
+    public String getMessage() {
         return this.message;
     }
 
-    public void setMessage(final String message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    public final Integer getParent() {
+    public Integer getParent() {
         return this.parent;
     }
 
-    public void setParent(final Integer parent) {
+    public void setParent(Integer parent) {
         this.parent = parent;
     }
 
-    public final Integer getThread() {
+    public Integer getThread() {
         return this.thread;
     }
 
-    public void setThread(final Integer thread) {
+    public void setThread(Integer thread) {
         this.thread = thread;
     }
 }

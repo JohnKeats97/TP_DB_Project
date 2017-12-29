@@ -4,7 +4,17 @@ package DataBaseProject.Queries;
 public class ForumQueries {
 
     public static String createForumQuery() {
-        return "INSERT INTO forums (user_id, slug, title) VALUES((SELECT id FROM users WHERE nickname = ?), ?, ?)";
+        StringBuilder query = new StringBuilder("INSERT INTO forums (user_id, slug, title) VALUES((");
+        query.append(LowerQueries.find_By_Query("id", "users", "nickname"));
+        query.append("), ?, ?)");
+        return query.toString();
+    }
+
+    public static String createForumInAllQuery() {
+        StringBuilder query = new StringBuilder("INSERT INTO forum_users (forum_id, user_id) VALUES(?, (");
+        query.append(LowerQueries.find_By_Query("id", "users", "nickname"));
+        query.append("))");
+        return query.toString();
     }
 
     public static String getForumQuery() {
@@ -13,7 +23,6 @@ public class ForumQueries {
         query.append("  JOIN forums AS f ON f.slug = ? AND u.id = f.user_id ");
         return query.toString();
     }
-
 
     public static String getThreadsByForumQuery() {
         StringBuilder query = new StringBuilder();

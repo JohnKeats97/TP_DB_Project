@@ -11,25 +11,25 @@ public class PostDetailedModel {
     private ThreadModel thread;
 
     @JsonCreator
-    public PostDetailedModel(@JsonProperty("author") final UserModel author,
-                             @JsonProperty("forum") final ForumModel forum,
-                             @JsonProperty("post") final PostModel post,
-                             @JsonProperty("thread") final ThreadModel thread) {
+    public PostDetailedModel(@JsonProperty("author") UserModel author,
+                             @JsonProperty("forum") ForumModel forum,
+                             @JsonProperty("post") PostModel post,
+                             @JsonProperty("thread") ThreadModel thread) {
         this.author = author;
         this.forum = forum;
         this.post = post;
         this.thread = thread;
     }
 
-    public final UserModel getAuthor() {
+    public UserModel getAuthor() {
         return this.author;
     }
 
-    public void setAuthor(final UserModel author) {
+    public void setAuthor(UserModel author) {
         this.author = author;
     }
 
-    public final ForumModel getForum() {
+    public ForumModel getForum() {
         return this.forum;
     }
 
@@ -37,7 +37,7 @@ public class PostDetailedModel {
         this.forum = forum;
     }
 
-    public final PostModel getPost() {
+    public PostModel getPost() {
         return this.post;
     }
 
@@ -45,7 +45,7 @@ public class PostDetailedModel {
         this.post = post;
     }
 
-    public final ThreadModel getThread() {
+    public ThreadModel getThread() {
         return this.thread;
     }
 

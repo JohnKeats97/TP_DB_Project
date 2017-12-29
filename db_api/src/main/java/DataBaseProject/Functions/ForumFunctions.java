@@ -23,6 +23,7 @@ public class ForumFunctions extends JdbcDaoSupport {
     private RowMapper<ForumModel> readForum;
     private RowMapper<ThreadModel> readThread;
     private RowMapper<UserModel> readUser;
+    public Integer forumId;
 
     @Autowired
     public ForumFunctions(JdbcTemplate jdbcTemplate) {
@@ -41,11 +42,13 @@ public class ForumFunctions extends JdbcDaoSupport {
         readUser = (rs, rowNum) ->
                 new UserModel(rs.getString("about"), rs.getString("email"),
                         rs.getString("fullname"), rs.getString("nickname"));
+        forumId = 0;
     }
 
 
     public void create(String username, String slug, String title) {
         getJdbcTemplate().update(ForumQueries.createForumQuery(), username, slug, title);
+        getJdbcTemplate().update(ForumQueries.createForumInAllQuery(), forumId++, username);
     }
 
     public ForumModel findBySlug(String slug) {

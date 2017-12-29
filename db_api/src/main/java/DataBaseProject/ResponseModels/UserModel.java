@@ -11,45 +11,45 @@ public class UserModel {
     private String nickname;
 
     @JsonCreator
-    public UserModel(@JsonProperty("about") final String about,
-                     @JsonProperty("email") final String email,
-                     @JsonProperty("fullname") final String fullname,
-                     @JsonProperty("nickname") final String nickname) {
+    public UserModel(@JsonProperty("about") String about,
+                     @JsonProperty("email") String email,
+                     @JsonProperty("fullname") String fullname,
+                     @JsonProperty("nickname") String nickname) {
         this.about = about;
         this.email = email;
         this.fullname = fullname;
         this.nickname = nickname;
     }
 
-    public final String getAbout() {
+    public String getAbout() {
         return this.about;
     }
 
-    public void setAbout(final String about) {
+    public void setAbout(String about) {
         this.about = about;
     }
 
-    public final String getEmail() {
+    public String getEmail() {
         return this.email;
     }
 
-    public void setEmail(final String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public final String getFullname() {
+    public String getFullname() {
         return this.fullname;
     }
 
-    public void setFullname(final String fullname) {
+    public void setFullname(String fullname) {
         this.fullname = fullname;
     }
 
-    public final String getNickname() {
+    public String getNickname() {
         return this.nickname;
     }
 
-    public void setNickname(final String nickname) {
+    public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 }
