@@ -65,8 +65,6 @@ public class ForumService {
         HttpStatus status = HttpStatus.OK;
         Object body;
         try {
-            // ForumModel forum = forumFunctions.findBySlug(slug);
-            // body = forum;
             body = forumFunctions.findBySlug(slug);
         } catch (DataAccessException ex) {
             body = error;

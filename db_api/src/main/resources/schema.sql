@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS votes;
 DROP INDEX IF EXISTS forums_user_id;
 DROP INDEX IF EXISTS forum_users_user_id;
 DROP INDEX IF EXISTS forum_users_forum_id;
+DROP INDEX IF EXISTS forum_users_thread_id;
+DROP INDEX IF EXISTS forum_users_post_id;
 DROP INDEX IF EXISTS forums_slug;
 DROP INDEX IF EXISTS users_nickname;
 DROP INDEX IF EXISTS posts_id;
@@ -38,7 +40,7 @@ DROP FUNCTION IF EXISTS update_or_insert_votes( INTEGER, INTEGER, INTEGER );
 CREATE TABLE IF NOT EXISTS users (
   id       SERIAL       PRIMARY KEY,
   about    CITEXT       DEFAULT NULL,
-  email    CITEXT,
+  email    CITEXT       DEFAULT NULL,
   fullname CITEXT       DEFAULT NULL,
   nickname CITEXT       COLLATE ucs_basic
 );
@@ -63,11 +65,6 @@ CREATE TABLE IF NOT EXISTS forums (
 ALTER TABLE forums ADD
   CONSTRAINT forums_slug UNIQUE (slug);
 
-CREATE TABLE IF NOT EXISTS forum_users (
-  user_id  INTEGER,
-  forum_id INTEGER
-);
-
 CREATE TABLE IF NOT EXISTS threads (
   id       SERIAL       PRIMARY KEY,
   user_id  INTEGER      NOT NULL,
@@ -75,7 +72,7 @@ CREATE TABLE IF NOT EXISTS threads (
   forum_id INTEGER      NOT NULL,
   created  TIMESTAMPTZ  DEFAULT NOW(),
   message  CITEXT       DEFAULT NULL,
-  slug     CITEXT,
+  slug     CITEXT       DEFAULT NULL,
   title    CITEXT       NOT NULL,
   votes    INTEGER      DEFAULT 0
 );
@@ -94,13 +91,19 @@ CREATE TABLE IF NOT EXISTS posts (
   message   CITEXT      DEFAULT NULL,
   parent    INTEGER     DEFAULT 0,
   path      INTEGER []  NOT NULL,
-  root_id   INTEGER
+  root_id   INTEGER     DEFAULT NULL
 );
 
+CREATE TABLE IF NOT EXISTS forum_users (
+  user_id   INTEGER     DEFAULT NULL,
+  forum_id  INTEGER     DEFAULT NULL,
+  thread_id INTEGER     DEFAULT NULL,
+  post_id   INTEGER     DEFAULT NULL
+);
 
 CREATE TABLE IF NOT EXISTS votes (
-  user_id   INTEGER,
-  thread_id INTEGER,
+  user_id   INTEGER     DEFAULT NULL,
+  thread_id INTEGER     DEFAULT NULL,
   voice     INTEGER     DEFAULT 0
 );
 
@@ -115,6 +118,10 @@ CREATE INDEX IF NOT EXISTS forum_users_user_id -- fill
   ON forum_users (user_id);
 CREATE INDEX IF NOT EXISTS forum_users_forum_id -- fill
   ON forum_users (forum_id);
+CREATE INDEX IF NOT EXISTS forum_users_thread_id -- fill
+  ON forum_users (thread_id);
+CREATE INDEX IF NOT EXISTS forum_users_post_id -- fill
+  ON forum_users (post_id);
 CREATE INDEX IF NOT EXISTS posts_id
   ON posts (id);
 CREATE INDEX IF NOT EXISTS posts_user_id
@@ -190,7 +197,7 @@ BEGIN
       FROM forum_users
       WHERE forum_id = thread_forum_id AND user_id = thread_user_id)
   THEN
-    INSERT INTO forum_users (user_id, forum_id) VALUES (thread_user_id, thread_forum_id);
+    INSERT INTO forum_users (user_id, forum_id, thread_id) VALUES (thread_user_id, thread_forum_id, thread_id);
   END IF;
   --
   RETURN thread_id;
@@ -225,7 +232,7 @@ BEGIN
       FROM forum_users
       WHERE forum_id = post_forum_id AND user_id = post_user_id)
   THEN
-    INSERT INTO forum_users (user_id, forum_id) VALUES (post_user_id, post_forum_id);
+    INSERT INTO forum_users (user_id, forum_id, thread_id, post_id) VALUES (post_user_id, post_forum_id, post_thread_id, post_id);
   END IF;
 END;
 ' LANGUAGE plpgsql;

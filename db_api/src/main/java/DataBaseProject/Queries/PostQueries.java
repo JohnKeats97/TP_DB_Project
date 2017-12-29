@@ -29,7 +29,7 @@ public class PostQueries {
         }
         return query.toString();
     }
-// AS
+
     public static String getPostsTree(Integer limit, Integer since, Boolean desc ) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, p.created, f.slug, p.id, p.is_edited, p.message, p.parent, p.thread_id ");

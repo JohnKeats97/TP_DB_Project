@@ -55,37 +55,29 @@ public class PostFunctions extends JdbcDaoSupport {
 
 
     public void create(List<PostModel> posts, String slug_or_id) {
-        final Integer threadId = slug_or_id.matches("\\d+") ? Integer.valueOf(slug_or_id) :
+        Integer threadId = slug_or_id.matches("\\d+") ? Integer.valueOf(slug_or_id) :
                 getJdbcTemplate().queryForObject(ThreadQueries.getThreadId(), Integer.class, slug_or_id);
-        final Integer forumId = getJdbcTemplate().queryForObject(ThreadQueries.getForumIdQuery(), Integer.class, threadId);
-        final Timestamp created = new Timestamp(System.currentTimeMillis());
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        Integer forumId = getJdbcTemplate().queryForObject(ThreadQueries.getForumIdQuery(), Integer.class, threadId);
+        Timestamp created = new Timestamp(System.currentTimeMillis());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Integer postId = 0;
-        try (Connection connection = getJdbcTemplate().getDataSource().getConnection()) {
-            connection.setAutoCommit(false);
-            try (CallableStatement callableStatement = connection.prepareCall(PostQueries.post_insertQuery())) {
-                for (PostModel post : posts) {
-                    postId = getJdbcTemplate().queryForObject(PostQueries.nextvalQuery(), Integer.class);
-                    callableStatement.setString(1, post.getAuthor());
-                    callableStatement.setTimestamp(2, created);
-                    callableStatement.setInt(3, forumId);
-                    callableStatement.setInt(4, postId);
-                    callableStatement.setString(5, post.getMessage());
-                    callableStatement.setInt(6, post.getParent());
-                    callableStatement.setInt(7, threadId);
-                    callableStatement.addBatch();
-                    post.setCreated(dateFormat.format(created));
-                    post.setId(postId);
-                }
-                callableStatement.executeBatch();
-                connection.commit();
-            } catch (SQLException ex) {
-                connection.rollback();
-                throw new DataRetrievalFailureException(null);
-            } finally {
-                connection.setAutoCommit(true);
+        try (Connection connection = getJdbcTemplate().getDataSource().getConnection();
+            CallableStatement callableStatement = connection.prepareCall(PostQueries.post_insertQuery())) {
+            for (PostModel post : posts) {
+                postId = getJdbcTemplate().queryForObject(PostQueries.nextvalQuery(), Integer.class);
+                callableStatement.setString(1, post.getAuthor());
+                callableStatement.setTimestamp(2, created);
+                callableStatement.setInt(3, forumId);
+                callableStatement.setInt(4, postId);
+                callableStatement.setString(5, post.getMessage());
+                callableStatement.setInt(6, post.getParent());
+                callableStatement.setInt(7, threadId);
+                callableStatement.addBatch();
+                post.setCreated(dateFormat.format(created));
+                post.setId(postId);
             }
+            callableStatement.executeBatch();
         } catch (SQLException ex) {
             throw new DataRetrievalFailureException(null);
         }
@@ -93,7 +85,7 @@ public class PostFunctions extends JdbcDaoSupport {
     }
 
     public PostModel update(String message, Integer id) {
-        final PostModel post = findById(id);
+        PostModel post = findById(id);
         getJdbcTemplate().update(PostQueries.updatePost(message.equals(post.getMessage())), message, id);
         if (!message.equals(post.getMessage())) {
             post.setIsEdited(true);
@@ -102,29 +94,28 @@ public class PostFunctions extends JdbcDaoSupport {
         return post;
     }
 
-    public final PostModel findById(Integer id) {
+    public PostModel findById(Integer id) {
         return getJdbcTemplate().queryForObject(PostQueries.getPostQuery(), new Object[]{id}, readPost);
     }
 
     public PostDetailedModel detailedView(Integer id, String[] related) {
-        final PostModel post = findById(id);
+        PostModel post = findById(id);
         UserModel user = null;
         ForumModel forum = null;
         ThreadModel thread = null;
         if (related != null) {
             for (String relation : related) {
-                switch (relation) {
-                    case "user":
-                        user = getJdbcTemplate().queryForObject(UserQueries.findUserQuery(),
-                                new Object[]{post.getAuthor(), null}, readUser);
-                        break;
-                    case "forum":
-                        forum = getJdbcTemplate().queryForObject(ForumQueries.getForumQuery(),
-                                new Object[]{post.getForum()}, readForum);
-                        break;
-                    case "thread":
-                        thread = getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(String.valueOf(post.getThread())),
-                                new Object[]{post.getThread()}, readThread);
+                if (relation.equals("user")) {
+                    user = getJdbcTemplate().queryForObject(UserQueries.findUserQuery(),
+                            new Object[]{post.getAuthor(), null}, readUser);
+                }
+                if (relation.equals("forum")) {
+                    forum = getJdbcTemplate().queryForObject(ForumQueries.getForumQuery(),
+                            new Object[]{post.getForum()}, readForum);
+                }
+                if (relation.equals("thread")) {
+                    thread = getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(String.valueOf(post.getThread())),
+                            new Object[]{post.getThread()}, readThread);
                 }
             }
         }
@@ -143,15 +134,14 @@ public class PostFunctions extends JdbcDaoSupport {
         if (sort == null) {
             return getJdbcTemplate().query(PostQueries.getPostsFlat(limit, since, desc), arguments.toArray(), readPost);
         }
-        switch (sort) {
-            case "flat" :
-                return getJdbcTemplate().query(PostQueries.getPostsFlat(limit, since, desc), arguments.toArray(), readPost);
-            case "tree" :
-                return getJdbcTemplate().query(PostQueries.getPostsTree(limit,since,desc), arguments.toArray(), readPost);
-            case "parent_tree" :
-                return getJdbcTemplate().query(PostQueries.getPostsParentTree(limit, since, desc), arguments.toArray(), readPost);
-            default:
-                break;
+        if (sort.equals("flat")) {
+            return getJdbcTemplate().query(PostQueries.getPostsFlat(limit, since, desc), arguments.toArray(), readPost);
+        }
+        if (sort.equals("tree")) {
+            return getJdbcTemplate().query(PostQueries.getPostsTree(limit,since,desc), arguments.toArray(), readPost);
+        }
+        if (sort.equals("parent_tree")) {
+            return getJdbcTemplate().query(PostQueries.getPostsParentTree(limit, since, desc), arguments.toArray(), readPost);
         }
         return getJdbcTemplate().query(PostQueries.getPostsFlat(limit, since, desc), arguments.toArray(), readPost);
     }
