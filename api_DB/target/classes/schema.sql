@@ -12,6 +12,7 @@ DROP INDEX IF EXISTS forum_users_user_id;
 DROP INDEX IF EXISTS forum_users_forum_id;
 DROP INDEX IF EXISTS forum_users_thread_id;
 DROP INDEX IF EXISTS forum_users_post_id;
+DROP INDEX IF EXISTS forum_users_author;
 DROP INDEX IF EXISTS forums_slug;
 DROP INDEX IF EXISTS users_nickname;
 DROP INDEX IF EXISTS posts_id;
@@ -55,7 +56,7 @@ ALTER TABLE users ADD
 CREATE TABLE IF NOT EXISTS forums (
   id          SERIAL       PRIMARY KEY,
   user_id     INTEGER      NOT NULL,
-  user_autor  CITEXT       DEFAULT NULL,
+  author      CITEXT       DEFAULT NULL,
   posts       INTEGER      DEFAULT 0,
   threads     INTEGER      DEFAULT 0,
   slug        CITEXT       NOT NULL,
@@ -68,7 +69,7 @@ ALTER TABLE forums ADD
 CREATE TABLE IF NOT EXISTS threads (
   id       SERIAL       PRIMARY KEY,
   user_id  INTEGER      NOT NULL,
-  autor    CITEXT       DEFAULT NULL,
+  author   CITEXT       DEFAULT NULL,
   forum_id INTEGER      NOT NULL,
   created  TIMESTAMPTZ  DEFAULT NOW(),
   message  CITEXT       DEFAULT NULL,
@@ -83,7 +84,7 @@ ALTER TABLE threads ADD
 CREATE TABLE IF NOT EXISTS posts (
   id        SERIAL      PRIMARY KEY,
   user_id   INTEGER     NOT NULL,
-  autor     CITEXT      DEFAULT NULL,
+  author    CITEXT      DEFAULT NULL,
   forum_id  INTEGER     NOT NULL,
   thread_id INTEGER     NOT NULL,
   created   TIMESTAMPTZ DEFAULT NOW(),
@@ -98,7 +99,8 @@ CREATE TABLE IF NOT EXISTS forum_users (
   user_id   INTEGER     DEFAULT NULL,
   forum_id  INTEGER     DEFAULT NULL,
   thread_id INTEGER     DEFAULT NULL,
-  post_id   INTEGER     DEFAULT NULL
+  post_id   INTEGER     DEFAULT NULL,
+  author    CITEXT      DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS votes (
@@ -122,6 +124,8 @@ CREATE INDEX IF NOT EXISTS forum_users_thread_id -- fill
   ON forum_users (thread_id);
 CREATE INDEX IF NOT EXISTS forum_users_post_id -- fill
   ON forum_users (post_id);
+CREATE INDEX IF NOT EXISTS forum_users_author -- fill
+  ON forum_users (author);
 CREATE INDEX IF NOT EXISTS posts_id
   ON posts (id);
 CREATE INDEX IF NOT EXISTS posts_user_id

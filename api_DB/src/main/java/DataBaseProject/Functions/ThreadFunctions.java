@@ -67,8 +67,7 @@ public class ThreadFunctions extends JdbcDaoSupport {
         Integer userId = getJdbcTemplate().queryForObject(UserQueries.findUserIdQuery(), Integer.class, view.getNickname());
         Integer threadId = slug_or_id.matches("\\d+") ? Integer.valueOf(slug_or_id) :
                 getJdbcTemplate().queryForObject(ThreadQueries.getThreadId(), Integer.class, slug_or_id);
-        getJdbcTemplate().execute(ThreadQueries.updateVotesQuery(userId,
-                threadId, view.getVoice()));
+        getJdbcTemplate().execute(ThreadQueries.updateVotesQuery(userId, threadId, view.getVoice()));
         return getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(slug_or_id), new Object[]{slug_or_id}, readThread);
     }
 

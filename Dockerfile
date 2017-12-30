@@ -2,10 +2,11 @@ FROM ubuntu:16.04
 
 MAINTAINER Evgeniy Buevich
 
-RUN apt-get -y update
-
-
 ENV PGVER 9.5
+
+RUN apt-get -y update
+RUN apt-get install -y openjdk-8-jdk-headless
+RUN apt-get install -y maven
 RUN apt-get install -y postgresql-$PGVER
 
 USER postgres
@@ -15,9 +16,6 @@ RUN /etc/init.d/postgresql start &&\
     createdb -E UTF8 -T template0 -O docker docker &&\
     /etc/init.d/postgresql stop
 
-RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/$PGVER/main/pg_hba.conf
-
-RUN echo "listen_addresses='*'" >> /etc/postgresql/$PGVER/main/postgresql.conf
 RUN echo "synchronous_commit = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
 
 EXPOSE 5432
@@ -26,16 +24,12 @@ VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
 USER root
 
-RUN apt-get -y update
-RUN apt-get install -y openjdk-8-jdk-headless
-RUN apt-get install -y maven
+ENV WORK /opt/TP_DB_Project
+ADD api_DB/ $WORK/api_DB/
 
-ENV WORK /opt/Park_DB_API_Project
-ADD db_api/ $WORK/db_api/
-
-WORKDIR $WORK/db_api
+WORKDIR $WORK/api_DB
 RUN mvn package
 
 EXPOSE 5000
 
-CMD service postgresql start && java -Xmx300M -Xmx300M -jar $WORK/db_api/target/DB_Project-1.0-SNAPSHOT.jar
+CMD service postgresql start && java -Xmx300M -Xmx300M -jar $WORK/api_DB/target/DB_Project-1.0-SNAPSHOT.jar
