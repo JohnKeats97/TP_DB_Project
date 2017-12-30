@@ -20,10 +20,9 @@ public class ThreadQueries {
     public static String getThreadQuery(String slug_or_id) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, t.created, f.slug AS f_slug, t.id, t.message, t.slug AS t_slug, t.title, t.votes ");
-        // медленно
-        query.append("FROM forums AS f "); // user
+        query.append("FROM forums AS f ");
         query.append("  JOIN forum_users AS fu ON fu.forum_id = f.id");
-        query.append("  JOIN users AS u ON u.id = fu.user_id"); // forum
+        query.append("  JOIN users AS u ON u.id = fu.user_id");
         query.append("  JOIN threads AS t ON ");
         String id_slug = (slug_or_id.matches("\\d+") ? "t.id = ? " : "t.slug = ? ");
         query.append(id_slug);

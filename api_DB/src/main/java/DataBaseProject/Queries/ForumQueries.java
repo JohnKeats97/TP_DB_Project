@@ -27,7 +27,6 @@ public class ForumQueries {
     public static String getThreadsByForumQuery() {
         StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, t.created, f.slug as f_slug, t.id, t.message, t.slug as t_slug, t.title, t.votes ");
-        // медленно
         query.append("FROM users AS u ");
         query.append("  JOIN forum_users AS fu ON u.id = fu.user_id");
         query.append("  JOIN forums AS f ON f.slug = ? AND fu.forum_id = f.id");

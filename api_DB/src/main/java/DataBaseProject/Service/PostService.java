@@ -1,7 +1,6 @@
 package DataBaseProject.Service;
 
 import DataBaseProject.Functions.PostFunctions;
-import DataBaseProject.ResponseModels.PostDetailedModel;
 import DataBaseProject.ResponseModels.PostModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

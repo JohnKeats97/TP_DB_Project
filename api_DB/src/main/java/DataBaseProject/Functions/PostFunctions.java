@@ -101,7 +101,7 @@ public class PostFunctions extends JdbcDaoSupport {
         return getJdbcTemplate().queryForObject(PostQueries.getPostQuery(), new Object[]{id}, readPost);
     }
 
-    public PostDetailedModel detailedView(Integer id, String[] related) {
+    public PostDetailedInfoModel detailedView(Integer id, String[] related) {
         PostModel post = findById(id);
         UserModel user = null;
         ForumModel forum = null;
@@ -122,7 +122,7 @@ public class PostFunctions extends JdbcDaoSupport {
                 }
             }
         }
-        return new PostDetailedModel(user, forum, post, thread);
+        return new PostDetailedInfoModel(user, forum, post, thread);
     }
 
     public List<PostModel> sort(ThreadModel thread, Integer limit, Integer since, String sort, Boolean desc) {

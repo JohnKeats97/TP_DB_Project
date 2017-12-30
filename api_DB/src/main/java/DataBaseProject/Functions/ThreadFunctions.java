@@ -3,7 +3,6 @@ package DataBaseProject.Functions;
 import DataBaseProject.Queries.ThreadQueries;
 import DataBaseProject.Queries.UserQueries;
 import DataBaseProject.ResponseModels.ThreadModel;
-import DataBaseProject.ResponseModels.UserModel;
 import DataBaseProject.ResponseModels.VoteModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

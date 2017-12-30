@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
-public class PostDetailedModel {
+public class PostDetailedInfoModel {
     private UserModel author;
     private ForumModel forum;
     private PostModel post;
     private ThreadModel thread;
 
     @JsonCreator
-    public PostDetailedModel(@JsonProperty("author") UserModel author,
-                             @JsonProperty("forum") ForumModel forum,
-                             @JsonProperty("post") PostModel post,
-                             @JsonProperty("thread") ThreadModel thread) {
+    public PostDetailedInfoModel(@JsonProperty("author") UserModel author,
+                                 @JsonProperty("forum") ForumModel forum,
+                                 @JsonProperty("post") PostModel post,
+                                 @JsonProperty("thread") ThreadModel thread) {
         this.author = author;
         this.forum = forum;
         this.post = post;
