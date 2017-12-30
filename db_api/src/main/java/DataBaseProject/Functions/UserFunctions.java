@@ -15,7 +15,7 @@ import java.util.List;
 public class UserFunctions extends JdbcDaoSupport {
 
     private RowMapper<UserModel> readUser;
-    public Integer userId;
+    private Integer userId;
 
     @Autowired
     public UserFunctions(JdbcTemplate jdbcTemplate) {

@@ -23,7 +23,7 @@ public class ForumFunctions extends JdbcDaoSupport {
     private RowMapper<ForumModel> readForum;
     private RowMapper<ThreadModel> readThread;
     private RowMapper<UserModel> readUser;
-    public Integer forumId;
+    private Integer forumId;
 
     @Autowired
     public ForumFunctions(JdbcTemplate jdbcTemplate) {

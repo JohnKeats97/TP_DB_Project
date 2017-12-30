@@ -17,7 +17,7 @@ public class ThreadQueries {
         return "UPDATE forums SET posts = posts + ? WHERE forums.id = ?";
     }
 
-    public static String getThreadQuery(final String slug_or_id) {
+    public static String getThreadQuery(String slug_or_id) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT u.nickname, t.created, f.slug AS f_slug, t.id, t.message, t.slug AS t_slug, t.title, t.votes ");
         // медленно
@@ -57,7 +57,7 @@ public class ThreadQueries {
         return query.toString();
     }
 
-    public static String updateVotesQuery (String userId, String threadId, Integer voiceView) {
+    public static String updateVotesQuery (Integer userId, Integer threadId, Integer voiceView) {
         StringBuilder query = new StringBuilder("SELECT update_or_insert_votes(");
         query.append(userId);
         query.append(", ");

@@ -11,12 +11,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Service;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+
 
 @Service
 public class PostFunctions extends JdbcDaoSupport {
@@ -58,26 +61,26 @@ public class PostFunctions extends JdbcDaoSupport {
         Integer threadId = slug_or_id.matches("\\d+") ? Integer.valueOf(slug_or_id) :
                 getJdbcTemplate().queryForObject(ThreadQueries.getThreadId(), Integer.class, slug_or_id);
         Integer forumId = getJdbcTemplate().queryForObject(ThreadQueries.getForumIdQuery(), Integer.class, threadId);
-        Timestamp created = new Timestamp(System.currentTimeMillis());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Integer postId;
-        try (Connection connection = getJdbcTemplate().getDataSource().getConnection();
-            CallableStatement callableStatement = connection.prepareCall(PostQueries.post_insertQuery())) {
+        if (posts.size() == 0) {
+            return;
+        }
+        String currentTime = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+        try (Connection connection = getJdbcTemplate().getDataSource().getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareCall(PostQueries.post_insertQuery());
             for (PostModel post : posts) {
-                postId = getJdbcTemplate().queryForObject(PostQueries.nextvalQuery(), Integer.class);
-                callableStatement.setString(1, post.getAuthor());
-                callableStatement.setTimestamp(2, created);
-                callableStatement.setInt(3, forumId);
-                callableStatement.setInt(4, postId);
-                callableStatement.setString(5, post.getMessage());
-                callableStatement.setInt(6, post.getParent());
-                callableStatement.setInt(7, threadId);
-                callableStatement.addBatch();
-                post.setCreated(dateFormat.format(created));
+                Integer postId = getJdbcTemplate().queryForObject(PostQueries.nextvalQuery(), Integer.class);
+                preparedStatement.setString(1, post.getAuthor());
+                preparedStatement.setString(2, currentTime);
+                preparedStatement.setInt(3, forumId);
+                preparedStatement.setInt(4, postId);
+                preparedStatement.setString(5, post.getMessage());
+                preparedStatement.setInt(6, post.getParent());
+                preparedStatement.setInt(7, threadId);
+                preparedStatement.addBatch();
+                post.setCreated(currentTime);
                 post.setId(postId);
             }
-            callableStatement.executeBatch();
+            preparedStatement.executeBatch();
         } catch (SQLException ex) {
             throw new DataRetrievalFailureException(null);
         }
