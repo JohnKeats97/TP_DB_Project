@@ -17,13 +17,14 @@ import java.util.List;
 import java.util.TimeZone;
 
 @Service
-public class ThreadFunctions extends JdbcDaoSupport {
+public class ThreadFunctions {
 
+    private JdbcTemplate template;
     private RowMapper<ThreadModel> readThread;
 
     @Autowired
-    public ThreadFunctions(JdbcTemplate jdbcTemplate) {
-        setJdbcTemplate(jdbcTemplate);
+    public ThreadFunctions(JdbcTemplate template) {
+        this.template = template;
         readThread = (rs, rowNum) -> {
             Timestamp timestamp = rs.getTimestamp("created");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -37,9 +38,9 @@ public class ThreadFunctions extends JdbcDaoSupport {
 
     public ThreadModel create(String author, String created, String forum,
                               String message, String slug, String title) {
-        Integer threadId = getJdbcTemplate().queryForObject(ThreadQueries.thread_insertQuery(),
+        Integer threadId = template.queryForObject(ThreadQueries.thread_insertQuery(),
                 new Object[]{author, created, forum, message, slug, title}, Integer.class);
-        return getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(threadId.toString()),
+        return template.queryForObject(ThreadQueries.getThreadQuery(threadId.toString()),
                 new Object[]{threadId}, readThread);
     }
 
@@ -53,28 +54,28 @@ public class ThreadFunctions extends JdbcDaoSupport {
         }
         if (!args.isEmpty()) {
             args.add(slug_or_id);
-            getJdbcTemplate().update(ThreadQueries.updateQuery(message, title, slug_or_id),
+            template.update(ThreadQueries.updateQuery(message, title, slug_or_id),
                     args.toArray());
         }
     }
 
     public ThreadModel findByIdOrSlug(String slug_or_id) {
-        return getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(slug_or_id), new Object[]{slug_or_id}, readThread);
+        return template.queryForObject(ThreadQueries.getThreadQuery(slug_or_id), new Object[]{slug_or_id}, readThread);
     }
 
     public ThreadModel updateVotes(VoteModel view, String slug_or_id) {
-        Integer userId = getJdbcTemplate().queryForObject(UserQueries.findUserIdQuery(), Integer.class, view.getNickname());
+        Integer userId = template.queryForObject(UserQueries.findUserIdQuery(), Integer.class, view.getNickname());
         Integer threadId = slug_or_id.matches("\\d+") ? Integer.valueOf(slug_or_id) :
-                getJdbcTemplate().queryForObject(ThreadQueries.getThreadId(), Integer.class, slug_or_id);
-        getJdbcTemplate().execute(ThreadQueries.updateVotesQuery(userId, threadId, view.getVoice()));
-        return getJdbcTemplate().queryForObject(ThreadQueries.getThreadQuery(slug_or_id), new Object[]{slug_or_id}, readThread);
+                template.queryForObject(ThreadQueries.getThreadId(), Integer.class, slug_or_id);
+        template.execute(ThreadQueries.updateVotesQuery(userId, threadId, view.getVoice()));
+        return template.queryForObject(ThreadQueries.getThreadQuery(slug_or_id), new Object[]{slug_or_id}, readThread);
     }
 
     public Integer count() {
-        return getJdbcTemplate().queryForObject(ThreadQueries.countThreadsQuery(), Integer.class);
+        return template.queryForObject(ThreadQueries.countThreadsQuery(), Integer.class);
     }
 
     public void clear() {
-        getJdbcTemplate().execute(ThreadQueries.clearTableQuery());
+        template.execute(ThreadQueries.clearTableQuery());
     }
 }

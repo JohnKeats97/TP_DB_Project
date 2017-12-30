@@ -1,13 +1,11 @@
-__pycache__/
 .idea/
-*.pyc
 
-DataBase/target/
-
-db_api/target/
+*.iml
 
 report\.html
 
 tech-db-forum
 
 tech-db-forum\.dat\.gz
+
+api_DB/target/

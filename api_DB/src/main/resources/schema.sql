@@ -124,7 +124,7 @@ CREATE INDEX IF NOT EXISTS forum_users_thread_id -- fill
   ON forum_users (thread_id);
 CREATE INDEX IF NOT EXISTS forum_users_post_id -- fill
   ON forum_users (post_id);
-CREATE INDEX IF NOT EXISTS forum_users_author -- fill
+CREATE INDEX IF NOT EXISTS forum_users_author
   ON forum_users (author);
 CREATE INDEX IF NOT EXISTS posts_id
   ON posts (id);

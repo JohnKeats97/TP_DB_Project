@@ -18,16 +18,17 @@ import java.util.TimeZone;
 
 
 @Service
-public class ForumFunctions extends JdbcDaoSupport {
+public class ForumFunctions {
 
+    private JdbcTemplate template;
     private RowMapper<ForumModel> readForum;
     private RowMapper<ThreadModel> readThread;
     private RowMapper<UserModel> readUser;
     private Integer forumId;
 
     @Autowired
-    public ForumFunctions(JdbcTemplate jdbcTemplate) {
-        setJdbcTemplate(jdbcTemplate);
+    public ForumFunctions(JdbcTemplate template) {
+        this.template = template;
         readForum = (rs, rowNum) ->
                 new ForumModel(rs.getInt("posts"), rs.getString("slug"),
                         rs.getInt("threads"), rs.getString("title"), rs.getString("nickname"));
@@ -47,12 +48,12 @@ public class ForumFunctions extends JdbcDaoSupport {
 
 
     public void create(String username, String slug, String title) {
-        getJdbcTemplate().update(ForumQueries.createForumQuery(), username, slug, title);
-        getJdbcTemplate().update(ForumQueries.createForumInAllQuery(), forumId++, username);
+        template.update(ForumQueries.createForumQuery(), username, slug, title);
+        template.update(ForumQueries.createForumInAllQuery(), forumId++, username);
     }
 
     public ForumModel findBySlug(String slug) {
-        return getJdbcTemplate().queryForObject(ForumQueries.getForumQuery(), new Object[]{slug}, readForum);
+        return template.queryForObject(ForumQueries.getForumQuery(), new Object[]{slug}, readForum);
     }
 
     public List<ThreadModel> findAllThreads(String slug, Integer limit, String since, Boolean desc) {
@@ -62,26 +63,26 @@ public class ForumFunctions extends JdbcDaoSupport {
             args.add(since);
         }
         args.add(limit);
-        return getJdbcTemplate().query(ForumQueries.findAllThreadsQuery(since, desc),
+        return template.query(ForumQueries.findAllThreadsQuery(since, desc),
                 args.toArray(new Object[args.size()]), readThread);
     }
 
     public List<UserModel> findAllUsers(String slug, Integer limit, String since, Boolean desc) {
         List<Object> args = new ArrayList<>();
-        Integer forumId = getJdbcTemplate().queryForObject(ForumQueries.findIdBySlugQuery(), Integer.class, slug);
+        Integer forumId = template.queryForObject(ForumQueries.findIdBySlugQuery(), Integer.class, slug);
         args.add(forumId);
         if (since != null) {
             args.add(since);
         }
         args.add(limit);
-        return getJdbcTemplate().query(ForumQueries.findAllUsersQuery(since, desc), args.toArray(), readUser);
+        return template.query(ForumQueries.findAllUsersQuery(since, desc), args.toArray(), readUser);
     }
 
     public Integer count() {
-        return getJdbcTemplate().queryForObject(ForumQueries.countForumsQuery(), Integer.class);
+        return template.queryForObject(ForumQueries.countForumsQuery(), Integer.class);
     }
 
     public void clear() {
-        getJdbcTemplate().execute(ForumQueries.clearTableQuery());
+        template.execute(ForumQueries.clearTableQuery());
     }
 }

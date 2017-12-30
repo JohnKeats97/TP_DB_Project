@@ -12,14 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserFunctions extends JdbcDaoSupport {
+public class UserFunctions {
 
+    private JdbcTemplate template;
     private RowMapper<UserModel> readUser;
     private Integer userId;
 
     @Autowired
-    public UserFunctions(JdbcTemplate jdbcTemplate) {
-        setJdbcTemplate(jdbcTemplate);
+    public UserFunctions(JdbcTemplate template) {
+        this.template = template;
         readUser = (rs, rowNum) ->
                 new UserModel(rs.getString("about"), rs.getString("email"),
                         rs.getString("fullname"), rs.getString("nickname"));
@@ -28,8 +29,8 @@ public class UserFunctions extends JdbcDaoSupport {
 
 
     public void create(final String about, String email, String fullname, String nickname) {
-        getJdbcTemplate().update(UserQueries.createUserQuery(), about, email, fullname, nickname);
-        getJdbcTemplate().update(UserQueries.createUserInAllQuery(), userId++);
+        template.update(UserQueries.createUserQuery(), about, email, fullname, nickname);
+        template.update(UserQueries.createUserInAllQuery(), userId++);
     }
 
     public void update(String about, String email, String fullname, String nickname) {
@@ -45,24 +46,23 @@ public class UserFunctions extends JdbcDaoSupport {
         }
         if (!args.isEmpty()) {
             args.add(nickname);
-            getJdbcTemplate().update(UserQueries.updateQuery(about, email, fullname)
-                    , args.toArray());
+            template.update(UserQueries.updateQuery(about, email, fullname), args.toArray());
         }
     }
 
     public UserModel findSingleByNickOrMail(String nickname, String email) {
-        return getJdbcTemplate().queryForObject(UserQueries.findUserQuery(), new Object[]{nickname, email}, readUser);
+        return template.queryForObject(UserQueries.findUserQuery(), new Object[]{nickname, email}, readUser);
     }
 
     public List<UserModel> findManyByNickOrMail(String nickname, String email) {
-        return getJdbcTemplate().query(UserQueries.findUserQuery(), new Object[]{nickname, email}, readUser);
+        return template.query(UserQueries.findUserQuery(), new Object[]{nickname, email}, readUser);
     }
 
     public Integer count() {
-        return getJdbcTemplate().queryForObject(UserQueries.countUsersQuery(), Integer.class);
+        return template.queryForObject(UserQueries.countUsersQuery(), Integer.class);
     }
 
     public void clear() {
-        getJdbcTemplate().execute(UserQueries.clearTableQuery());
+        template.execute(UserQueries.clearTableQuery());
     }
 }
